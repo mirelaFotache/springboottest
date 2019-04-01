@@ -1,13 +1,13 @@
 package com.pentalog.bookstore.services;
 
 import com.pentalog.bookstore.exception.BookstoreException;
+import com.pentalog.bookstore.persistence.entities.Role;
 import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.pentalog.bookstore.persistence.entities.Role;
+
 import javax.annotation.Resource;
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @Transactional
