@@ -82,7 +82,6 @@ public class UserService {
     public User update(Integer id, User user) {
         User savedUser;
         User persistedUser = userJpaRepository.findById(id).orElse(null);
-
         if(persistedUser!=null && user!=null) {
             persistedUser.setFirstName(user.getFirstName());
             persistedUser.setLastName(user.getLastName());
@@ -99,7 +98,7 @@ public class UserService {
                 persistedUser.getUserRoles().add(role);
             }
 
-            savedUser = userJpaRepository.save(user);
+            savedUser = userJpaRepository.save(persistedUser);
        }else{
             throw new BookstoreException("User not found!");
         }
