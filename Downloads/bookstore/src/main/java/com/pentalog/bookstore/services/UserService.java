@@ -7,14 +7,12 @@ import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
 @Service
-@EnableTransactionManagement
 public class UserService {
 
     @Autowired
