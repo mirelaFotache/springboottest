@@ -81,7 +81,7 @@ public class UserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public User update(Integer id, User user) {
         User savedUser;
-        User persistedUser = userJpaRepository.findById(id).orElse(null);//findUserByIdAndUserRoles(id);
+        User persistedUser = userJpaRepository.findById(id).orElse(null);
 
         if(persistedUser!=null && user!=null) {
             persistedUser.setFirstName(user.getFirstName());
