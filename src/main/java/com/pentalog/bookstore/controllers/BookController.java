@@ -36,7 +36,7 @@ public class BookController {
      */
     @RequestMapping(value = "/{book_id}/categories/", method = RequestMethod.GET)
     public ResponseEntity<Collection<CategoryDTO>> getBookCategories(@PathVariable("book_id") Integer bookId) {
-        return new ResponseEntity<>(categoryMapper.toCategoryDTOs(bookService.findCategoriesByBookId(bookId)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findCategoriesByBookId(bookId), HttpStatus.OK);
     }
 
     /**
@@ -66,7 +66,7 @@ public class BookController {
      */
     @RequestMapping(value = "/title", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookDTO>> findByTitle(@RequestParam("searchBy") String title) {
-        return new ResponseEntity<>(bookMapper.toBookDTOs(bookService.findByTitle(title)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findByTitle(title), HttpStatus.OK);
     }
 
     /**
@@ -76,7 +76,7 @@ public class BookController {
      */
     @RequestMapping(value = "/author", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookDTO>> findByAuthor(@RequestParam("searchBy") String author) {
-        return new ResponseEntity<>(bookMapper.toBookDTOs(bookService.findByAuthor(author)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findByAuthor(author), HttpStatus.OK);
     }
 
     /**
@@ -85,7 +85,7 @@ public class BookController {
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookDTO>> getAllBooks() {
-        return new ResponseEntity<>(bookMapper.toBookDTOs(bookService.findAll()), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findAllBooks(), HttpStatus.OK);
     }
 
     /**

@@ -1,9 +1,10 @@
 package com.pentalog.bookstore.services;
 
-import com.pentalog.bookstore.controllers.UserController;
+import com.pentalog.bookstore.dto.BookDTO;
+import com.pentalog.bookstore.dto.BooksMapper;
+import com.pentalog.bookstore.dto.CategoryDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.persistence.entities.Book;
-import com.pentalog.bookstore.persistence.entities.Booking;
 import com.pentalog.bookstore.persistence.entities.Category;
 import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.CategoryJpaRepository;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
+import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -26,6 +28,8 @@ public class BookService {
 
     @Autowired
     private CategoryJpaRepository categoryJpaRepository;
+    @Autowired
+    private BooksMapper booksMapper;
 
     public static final String BOOK_NOT_FOUND = "Book not found!";
     private Logger logger = LoggerFactory.getLogger(BookService.class);
@@ -36,20 +40,17 @@ public class BookService {
      * @return
      */
     @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<Category> findCategoriesByBookId(Integer bookId) {
-        return booksJpaRepository.findBookCategories(bookId);
+    public Collection<CategoryDTO> findCategoriesByBookId(Integer bookId) {
+        return booksJpaRepository.findBookCategories(bookId).stream().map(booksMapper::toCategoryDto).collect(Collectors.toList());
     }
     /**
      * Find all books
      * @return books list
      */
     @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<Book> findAll() {
-        final List<Book> allBooks = booksJpaRepository.findAll();
-        for(Book b: allBooks){
-            logger.info(">>> Book id: "+b.getId()+" Booking id: "+b.getBookings().get(0).getId()+" User id: "+b.getBookings().get(0).getBookingUser().getId());
-        }
-        return allBooks;
+    public Collection<BookDTO> findAllBooks() {
+        return booksJpaRepository.findAllBooks().stream().map(booksMapper::toDto).collect(Collectors.toList());
+
     }
 
     /**
@@ -58,8 +59,8 @@ public class BookService {
      * @return books list
      */
     @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<Book> findByTitle(String title){
-        return booksJpaRepository.findByTitle(title.toLowerCase());
+    public Collection<BookDTO> findByTitle(String title){
+        return booksJpaRepository.findByTitle(title.toLowerCase()).stream().map(booksMapper::toDto).collect(Collectors.toList());
     }
 
     /**
@@ -78,8 +79,8 @@ public class BookService {
      * @return books list
      */
     @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<Book> findByAuthor(String author){
-        return booksJpaRepository.findByAuthor(author.toLowerCase());
+    public Collection<BookDTO> findByAuthor(String author){
+        return booksJpaRepository.findByAuthor(author.toLowerCase()).stream().map(booksMapper::toDto).collect(Collectors.toList());
     }
 
     /**

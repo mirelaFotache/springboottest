@@ -18,6 +18,24 @@ public class BookDTO {
     private BookLocation bookLocation;
 
     private List<CategoryDTO> bookCategories;
+    private List<BookingDTO> bookings;
+    private List<RatingDTO> ratings;
+
+    public List<BookingDTO> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<BookingDTO> bookings) {
+        this.bookings = bookings;
+    }
+
+    public List<RatingDTO> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<RatingDTO> ratings) {
+        this.ratings = ratings;
+    }
 
     public int getId() {
         return id;
