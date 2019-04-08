@@ -1,5 +1,9 @@
 package com.pentalog.bookstore.services;
 
+import com.pentalog.bookstore.dto.BookDTO;
+import com.pentalog.bookstore.dto.BookingDTO;
+import com.pentalog.bookstore.dto.BookingsMapper;
+import com.pentalog.bookstore.dto.UserDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.persistence.entities.Book;
 import com.pentalog.bookstore.persistence.entities.Booking;
@@ -13,7 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-
+import java.util.stream.Collectors;
 @Service
 @Transactional(propagation = Propagation.REQUIRED)
 public class BookingService {
@@ -25,6 +29,8 @@ public class BookingService {
     private UserJpaRepository userJpaRepository;
     @Autowired
     private BooksJpaRepository bookJpaRepository;
+    @Autowired
+    private BookingsMapper bookingsMapper;
 
     /**
      * Get all bookings
@@ -32,8 +38,8 @@ public class BookingService {
      * @return bookings
      */
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    public Collection<Booking> findAll() {
-        return bookingJpaRepository.findAll();
+    public Collection<BookingDTO> findAll() {
+        return bookingJpaRepository.findAll().stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
     }
 
     /**
@@ -43,58 +49,57 @@ public class BookingService {
      * @return all bookings for given book
      */
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    public Collection<Booking> findBookingsByBookId(Integer bookId) {
-        return bookingJpaRepository.findBookingsByBookId(bookId);
+    public Collection<BookingDTO> findBookingsByBookId(Integer bookId) {
+        return bookingJpaRepository.findBookingsByBookId(bookId).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
     }
 
     /**
      * persist booking
      *
-     * @param booking booking
-     * @return persisted booking
+     * @param bookingDTO bookingDTO
+     * @return persisted bookingDTO
      */
-    public Booking insert(Booking booking) {
-        User user = booking.getBookingUser();
-        Book book = booking.getBookingBook();
-        if (user != null) {
-            User persistedUser = userJpaRepository.findById(user.getId()).orElse(null);
+    public BookingDTO insert(BookingDTO bookingDTO) {
+        UserDTO userDTO = bookingDTO.getBookingUser();
+        BookDTO bookDTO = bookingDTO.getBookingBook();
+        Booking booking = bookingsMapper.fromDTO(bookingDTO);
+        if (userDTO != null) {
+            User persistedUser = userJpaRepository.findById(userDTO.getId()).orElse(null);
             booking.setBookingUser(persistedUser);
         }
-        if(book!=null) {
-            Book persistedBook = bookJpaRepository.findById(book.getId()).orElse(null);
+        if(bookDTO!=null) {
+            Book persistedBook = bookJpaRepository.findById(bookDTO.getId()).orElse(null);
             booking.setBookingBook(persistedBook);
         }
-        return bookingJpaRepository.save(booking);
+        return bookingsMapper.toDTO(bookingJpaRepository.save(booking));
     }
 
     /**
      * Update booking
      * @param id id
-     * @param booking booking
-     * @return updated booking
+     * @param bookingDTO bookingDTO
+     * @return updated bookingDTO
      */
-    public Booking update(Integer id, Booking booking) {
-        Booking savedBooking;
+    public BookingDTO update(Integer id, BookingDTO bookingDTO) {
         Booking persistedBooking = bookingJpaRepository.findById(id).orElse(null);
 
-        if(persistedBooking!=null && booking!=null) {
-            persistedBooking.setStartDate(booking.getStartDate());
-            persistedBooking.setEstimatedEndDate(booking.getEstimatedEndDate());
+        if(persistedBooking!=null && bookingDTO!=null) {
+            persistedBooking.setStartDate(bookingDTO.getStartDate());
+            persistedBooking.setEstimatedEndDate(bookingDTO.getEstimatedEndDate());
 
-            if(booking.getBookingBook()!=null) {
-                Book book = bookJpaRepository.getOne(booking.getBookingBook().getId());
+            if(bookingDTO.getBookingBook()!=null) {
+                Book book = bookJpaRepository.getOne(bookingDTO.getBookingBook().getId());
                 persistedBooking.setBookingBook(book);
             }
-            if(booking.getBookingUser()!=null) {
-                User user = userJpaRepository.findById(booking.getBookingUser().getId()).orElse(null);
+            if(bookingDTO.getBookingUser()!=null) {
+                User user = userJpaRepository.findById(bookingDTO.getBookingUser().getId()).orElse(null);
                 persistedBooking.setBookingUser(user);
             }
 
-            savedBooking = bookingJpaRepository.save(persistedBooking);
+            return bookingsMapper.toDTO(bookingJpaRepository.save(persistedBooking));
         }else{
             throw new BookstoreException("Booking not found");
         }
-        return savedBooking;
     }
 
     /**

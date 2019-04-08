@@ -1,18 +1,33 @@
 package com.pentalog.bookstore.dto;
 
 import com.pentalog.bookstore.persistence.entities.Category;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
+@Component
+public class CategoryMapper {
 
-@Mapper
-public interface  CategoryMapper {
-    CategoryDTO toCategoryDTO(Category category);
+    /**
+     * Convert Category to CategoryDTO
+     *
+     * @param category category
+     * @return categoryDTO
+     */
+    public CategoryDTO toDto(Category category) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setId(category.getId());
+        categoryDTO.setName(category.getName());
+        return categoryDTO;
+    }
 
-    Collection<CategoryDTO> toCategoryDTOs(Collection<Category> categories);
-
-    Category toCategory(CategoryDTO categoryDTO);
-
-    List<Category> toCategories(List<CategoryDTO> categories);
+    /**
+     * Convert categoryDTO to category
+     *
+     * @param categoryDTO categoryDTO
+     * @return category
+     */
+    public Category fromDto(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        category.setName(categoryDTO.getName());
+        return category;
+    }
 }

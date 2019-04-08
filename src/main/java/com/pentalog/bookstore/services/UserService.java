@@ -1,113 +1,130 @@
 package com.pentalog.bookstore.services;
 
+import com.pentalog.bookstore.dto.RoleDTO;
+import com.pentalog.bookstore.dto.UserDTO;
+import com.pentalog.bookstore.dto.UsersMapper;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.persistence.entities.Role;
 import com.pentalog.bookstore.persistence.entities.User;
 import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
     private UserJpaRepository userJpaRepository;
-    @Autowired
+    private UsersMapper userMapper;
     private RoleJpaRepository roleJpaRepository;
 
+    public UserService(UserJpaRepository userJpaRepository,UsersMapper userMapper, RoleJpaRepository roleJpaRepository ) {
+        this.userJpaRepository = userJpaRepository;
+        this.userMapper = userMapper;
+        this.roleJpaRepository = roleJpaRepository;
+    }
 
     /**
      * Find user by userName
+     *
      * @param userName user name
      * @return users
      */
-    @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<User> findByUserName(String userName) {
-        return userJpaRepository.findByUserName(userName.toLowerCase());
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Collection<UserDTO> findByUserName(String userName) {
+        return userJpaRepository.findByUserName(userName.toLowerCase()).stream()
+                .map(user->userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
+                .collect(Collectors.toList());
     }
 
     /**
      * Find user by id
+     *
      * @param id id
      * @return user by id
      */
-    @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public User findById(Integer id) {
-        return userJpaRepository.findById(id).orElse(null);
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public UserDTO findById(Integer id) {
+        return userMapper.toDTO(userJpaRepository.findById(id)).orElse(null);
     }
 
-    /**
-     * Find roles of user by id user
-     * @param userId user id
-     * @return roles
-     */
-    @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<Role> findRolesByUserId(Integer userId) {
-        return userJpaRepository.findUserRoles(userId);
-    }
 
     /**
      * Find all users
+     *
      * @return all users
      */
-    @Transactional(propagation = Propagation.SUPPORTS,readOnly = true)
-    public Collection<User> findAll() {
-        return userJpaRepository.findAll();
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Collection<UserDTO> findAll() {
+        return userJpaRepository.findAll().stream()
+                .map(user->userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
+                .collect(Collectors.toList());
     }
+
     /**
      * Save user
-     * @param user user
-     * @return saved user
+     *
+     * @param userDTO userDTO
+     * @return saved userDTO
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public User insert(User user) {
-        return userJpaRepository.save(user);
+    public UserDTO insert(UserDTO userDTO) {
+        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userMapper.fromDTO(userDTO)))).orElse(null);
     }
 
     /**
      * Update user
-     * @param user user
+     *
+     * @param userDTO userDTO
      * @return updated user
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public User update(Integer id, User user) {
-        User savedUser;
+    public UserDTO update(Integer id, UserDTO userDTO) {
         User persistedUser = userJpaRepository.findById(id).orElse(null);
-        if(persistedUser!=null && user!=null) {
-            persistedUser.setFirstName(user.getFirstName());
-            persistedUser.setLastName(user.getLastName());
-            persistedUser.setUserName(user.getUserName());
-            persistedUser.setPhoneNumber(user.getPhoneNumber());
-            persistedUser.setEmail(user.getEmail());
-            persistedUser.setAddress(user.getAddress());
-            persistedUser.setCity(user.getCity());
-            persistedUser.setPassword(user.getPassword());
+        if (persistedUser != null && userDTO != null) {
+            persistedUser.setFirstName(userDTO.getFirstName());
+            persistedUser.setLastName(userDTO.getLastName());
+            persistedUser.setUserName(userDTO.getUserName());
+            persistedUser.setPhoneNumber(userDTO.getPhoneNumber());
+            persistedUser.setEmail(userDTO.getEmail());
+            persistedUser.setAddress(userDTO.getAddress());
+            persistedUser.setCity(userDTO.getCity());
+            persistedUser.setPassword(userDTO.getPassword());
             persistedUser.getUserRoles().clear();
 
-            for(Role r : user.getUserRoles()){
-                Role role = roleJpaRepository.findById(r.getId()).orElse(null);
+            for (RoleDTO rDTO : userDTO.getUserRoles()) {
+                Role role = roleJpaRepository.findById(rDTO.getId()).orElse(null);
                 persistedUser.getUserRoles().add(role);
             }
 
-            savedUser = userJpaRepository.save(persistedUser);
-       }else{
+            return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(persistedUser))).orElse(null);
+        } else {
             throw new BookstoreException("User not found!");
         }
-        return savedUser;
     }
 
     /**
      * Delete user by id
+     *
      * @param id id
      * @return 0 when user not removed and 1 if user removed successfully
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
-            return userJpaRepository.removeById(id);
+        return userJpaRepository.removeById(id);
+    }
+
+
+    UserJpaRepository getUserJpaRepository() {
+        return userJpaRepository;
+    }
+
+    public RoleJpaRepository getRoleJpaRepository() {
+        return roleJpaRepository;
     }
 }

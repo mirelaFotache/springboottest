@@ -1,13 +1,19 @@
 package com.pentalog.bookstore.services;
 
+import com.pentalog.bookstore.dto.RoleDTO;
+import com.pentalog.bookstore.dto.RoleMapper;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.persistence.entities.Role;
 import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
+import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -15,54 +21,69 @@ public class RoleService {
 
     @Resource
     private RoleJpaRepository roleJpaRepository;
-
+    @Autowired
+    private RoleMapper roleMapper;
     /**
      * Find role by name
+     *
      * @param roleName role name
      * @return role by name
      */
-    public Collection<Role> findByRoleName(String roleName){
-        return roleJpaRepository.findByName(roleName.toLowerCase());
+    public Collection<RoleDTO> findByRoleName(String roleName) {
+        return roleJpaRepository.findByName(roleName.toLowerCase()).stream().map(roleMapper::toDto).collect(Collectors.toList());
+    }
+
+    /**
+     * Find roles of user by id user
+     *
+     * @param userId user id
+     * @return roles
+     */
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Collection<RoleDTO> findRolesByUserId(Integer userId) {
+        return roleJpaRepository.findUserRoles(userId).stream().map(roleMapper::toDto).collect(Collectors.toList());
     }
 
     /**
      * Find roles
+     *
      * @return roles
      */
-    public Collection<Role> findAll() {
-        return roleJpaRepository.findAll();
+    public Collection<RoleDTO> findAll() {
+        return roleJpaRepository.findAll().stream().map(roleMapper::toDto).collect(Collectors.toList());
     }
 
     /**
      * Insert role
-     * @param role role
-     * @return inserted role
+     *
+     * @param roleDTO roleDTO
+     * @return inserted roleDTO
      */
-    public Role insert(Role role) {
-        return roleJpaRepository.save(role);
+    public RoleDTO insert(RoleDTO roleDTO) {
+        return roleMapper.toDto(roleJpaRepository.save(roleMapper.fromDto(roleDTO)));
     }
 
     /**
      * Update role
-     * @param role roel
-     * @return updated role
+     *
+     * @param roleDTO roleDTO
+     * @return updated roleDTO
      */
-    public Role update(Integer id, Role role) {
-        Role savedRole = null;
+    public RoleDTO update(Integer id, RoleDTO roleDTO) {
         Role persistedRole = roleJpaRepository.findById(id).orElse(null);
 
-        if(persistedRole!=null && role!=null) {
-            persistedRole.setName(role.getName());
+        if (persistedRole != null && roleDTO != null) {
+            persistedRole.setName(roleDTO.getName());
 
-            savedRole = roleJpaRepository.save(persistedRole);
-        }else{
+            return roleMapper.toDto(roleJpaRepository.save(persistedRole));
+        } else {
             throw new BookstoreException("Role not found!");
         }
-        return savedRole;
     }
 
     /**
      * Delete role by id
+     *
      * @param id id
      * @return 0 when user not removed and 1 if user removed successfully
      */

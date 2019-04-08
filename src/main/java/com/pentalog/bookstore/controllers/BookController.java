@@ -2,7 +2,6 @@ package com.pentalog.bookstore.controllers;
 
 import com.pentalog.bookstore.dto.*;
 import com.pentalog.bookstore.exception.BookstoreException;
-import com.pentalog.bookstore.persistence.entities.Book;
 import com.pentalog.bookstore.services.BookService;
 import com.pentalog.bookstore.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,24 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
-    @Resource
+    @Autowired
     private BookService bookService;
     @Autowired
-    private BookMapper bookMapper;
-    @Autowired
-    private CategoryMapper categoryMapper;
-
-    @Resource
     private BookingService bookingService;
-    @Autowired
-    private BookingMapper bookingMapper;
 
     /**
      * Find all categories where a book is registered
@@ -46,7 +37,7 @@ public class BookController {
      */
     @RequestMapping(value = "/{book_id}/bookings/", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookingDTO>> getBookingsByBook(@PathVariable("book_id") Integer bookId) {
-        return new ResponseEntity<>(bookingMapper.toBookingDTOs(bookingService.findBookingsByBookId(bookId)), HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.findBookingsByBookId(bookId), HttpStatus.OK);
     }
 
     /**
@@ -56,7 +47,7 @@ public class BookController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<BookDTO> getBook(@PathVariable("id") Integer id) {
-        return new ResponseEntity<>(bookMapper.toBookDTO(bookService.findById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findById(id), HttpStatus.OK);
     }
 
     /**
@@ -95,9 +86,7 @@ public class BookController {
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<BookDTO> insertBook(@RequestBody BookDTO bookDTO) {
-        final Book book = bookMapper.toBook(bookDTO);
-        book.setBookCategories(categoryMapper.toCategories(bookDTO.getBookCategories()));
-        return new ResponseEntity<>(bookMapper.toBookDTO(bookService.insert(book)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.insert(bookDTO), HttpStatus.OK);
     }
 
     /**
@@ -107,12 +96,7 @@ public class BookController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity<BookDTO> updateBook(@PathVariable("id") Integer id, @RequestBody BookDTO bookDTO) {
-        final Book book = bookMapper.toBook(bookDTO);
-        book.setBookCategories(categoryMapper.toCategories(bookDTO.getBookCategories()));
-        final Book updatedBook = bookService.update(id, book);
-        final BookDTO booksDTO = bookMapper.toBookDTO(updatedBook);
-
-        return new ResponseEntity<>(booksDTO, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.update(id, bookDTO), HttpStatus.OK);
     }
 
     /**

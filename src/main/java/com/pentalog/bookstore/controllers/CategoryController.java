@@ -1,11 +1,8 @@
 package com.pentalog.bookstore.controllers;
 
 import com.pentalog.bookstore.dto.CategoryDTO;
-import com.pentalog.bookstore.dto.CategoryMapper;
 import com.pentalog.bookstore.exception.BookstoreException;
-import com.pentalog.bookstore.persistence.entities.Category;
 import com.pentalog.bookstore.services.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +16,6 @@ public class CategoryController {
 
     @Resource
     private CategoryService categoryService;
-    @Autowired
-    private CategoryMapper categoryMapper;
 
     /**
      * Find category by name
@@ -29,7 +24,7 @@ public class CategoryController {
      */
     @RequestMapping(value = "/name", method = RequestMethod.GET)
     public ResponseEntity<Collection<CategoryDTO>> findByName(@RequestParam("searchBy") String name) {
-        return new ResponseEntity<>(categoryMapper.toCategoryDTOs(categoryService.findByCategoryName(name)), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.findByCategoryName(name), HttpStatus.OK);
 
     }
 
@@ -39,7 +34,7 @@ public class CategoryController {
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<Collection<CategoryDTO>> getAllCategories() {
-        return new ResponseEntity<>(categoryMapper.toCategoryDTOs(categoryService.findAll()), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -49,8 +44,7 @@ public class CategoryController {
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<CategoryDTO> insertCategory(@RequestBody CategoryDTO categoryDTO) {
-        final Category category = categoryMapper.toCategory(categoryDTO);
-        return new ResponseEntity<>(categoryMapper.toCategoryDTO(categoryService.insert(category)), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.insert(categoryDTO), HttpStatus.OK);
     }
 
     /**
@@ -60,8 +54,7 @@ public class CategoryController {
      */
     @RequestMapping(value = "/{id}",  method = RequestMethod.PUT)
     public ResponseEntity<CategoryDTO> update(@PathVariable("id") Integer id,@RequestBody CategoryDTO categoryDTO) {
-        final Category category = categoryMapper.toCategory(categoryDTO);
-        return new ResponseEntity<>(categoryMapper.toCategoryDTO(categoryService.update(id, category)), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.update(id, categoryDTO), HttpStatus.OK);
     }
 
     /**

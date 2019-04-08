@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "book")
-public class Book{
+public class Book {
 
     @Id
     @GeneratedValue
@@ -44,6 +44,9 @@ public class Book{
     private List<Rating> ratings;
     @OneToMany(mappedBy = "bookingBook", fetch = FetchType.LAZY)
     private List<Booking> bookings;
+
+    @Transient
+    private Booking booking;
 
     /**
      * Getter/setter section
@@ -135,5 +138,13 @@ public class Book{
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
     }
 }

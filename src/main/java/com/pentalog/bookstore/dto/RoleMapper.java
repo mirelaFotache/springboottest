@@ -1,20 +1,34 @@
 package com.pentalog.bookstore.dto;
 
 import com.pentalog.bookstore.persistence.entities.Role;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
+@Component
+public class RoleMapper {
 
-@Mapper
-public interface RoleMapper {
+    /**
+     * Convert role to roleDTO
+     *
+     * @param role role
+     * @return roleDTO
+     */
+    public RoleDTO toDto(Role role) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setId(role.getId());
+        roleDTO.setName(role.getName());
+        return roleDTO;
+    }
 
-    RoleDTO toRoleDTO(Role role);
-
-    Collection<RoleDTO> toRoleDTOs(Collection<Role> roles);
-
-    Role toRole(RoleDTO roleDTO);
-
-    List<Role> toRoles(List<RoleDTO> rolesDTO);
+    /**
+     * Convert roleDTO to role
+     * @param roleDTO roleDTO
+     * @return role
+     */
+    public Role fromDto(RoleDTO roleDTO) {
+        Role role = new Role();
+        role.setId(roleDTO.getId());
+        role.setName(roleDTO.getName());
+        return role;
+    }
 
 }

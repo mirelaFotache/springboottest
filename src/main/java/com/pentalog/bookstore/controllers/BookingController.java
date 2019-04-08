@@ -1,10 +1,8 @@
 package com.pentalog.bookstore.controllers;
 
-import com.pentalog.bookstore.dto.*;
+import com.pentalog.bookstore.dto.BookingDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
-import com.pentalog.bookstore.persistence.entities.Booking;
 import com.pentalog.bookstore.services.BookingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +16,6 @@ public class BookingController {
 
     @Resource
     private BookingService bookingService;
-    @Autowired
-    private BookingMapper bookingMapper;
-    @Autowired
-    private BookMapper bookMapper;
-    @Autowired
-    private UserMapper userMapper;
 
     /**
      * Get all bookings
@@ -31,7 +23,7 @@ public class BookingController {
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookingDTO>> getAllBookings() {
-        return new ResponseEntity<>(bookingMapper.toBookingDTOs(bookingService.findAll()), HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -41,11 +33,7 @@ public class BookingController {
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<BookingDTO> insertBooking(@RequestBody BookingDTO bookingDTO) {
-        final Booking booking = bookingMapper.toBooking(bookingDTO);
-        booking.setBookingBook(bookMapper.toBook(bookingDTO.getBookingBook()));
-        booking.setBookingUser(userMapper.toUser(bookingDTO.getBookingUser()));
-
-        return new ResponseEntity<>(bookingMapper.toBookingDTO(bookingService.insert(booking)), HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.insert(bookingDTO), HttpStatus.OK);
     }
 
     /**
@@ -56,12 +44,7 @@ public class BookingController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ResponseEntity<BookingDTO> updateBooking(@PathVariable("id") Integer id, @RequestBody BookingDTO bookingDTO) {
-        final Booking booking = bookingMapper.toBooking(bookingDTO);
-        booking.setBookingBook(bookMapper.toBook(bookingDTO.getBookingBook()));
-        booking.setBookingUser(userMapper.toUser(bookingDTO.getBookingUser()));
-
-        final BookingDTO persistedBookingDTO = bookingMapper.toBookingDTO(bookingService.update(id, booking));
-        return new ResponseEntity<>(persistedBookingDTO, HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.update(id, bookingDTO), HttpStatus.OK);
     }
 
     /**

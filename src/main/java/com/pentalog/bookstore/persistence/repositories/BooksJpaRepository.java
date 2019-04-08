@@ -19,8 +19,7 @@ public interface BooksJpaRepository extends CommonRepository<Book, Integer> {
     @Query("SELECT b.bookCategories FROM Book b  where b.id=:id")
     Collection<Category> findBookCategories(@Param("id") Integer id);
 
-
-    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.bookCategories as cb  LEFT JOIN Booking bg on b.id=bg.bookingBook.id where bg.startDate in (select max(bb.startDate) from Booking bb " +
-            "where bg.bookingBook.id=bb.bookingBook.id) ")
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.bookCategories as cb ")
     List<Book> findAllBooks();
+
 }
