@@ -51,7 +51,7 @@ public class BookService {
      * @return books list
      */
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    public Collection<BookDTO> findAllBooks() {
+    public Collection<BookDTO> findBooksAvailability() {
         final List<Book> allBooks = booksJpaRepository.findAllBooks();
         for (Book book : allBooks) {
             String hql = "select b from Booking b where b.bookingBook.id=:id order by b.startDate desc";
@@ -61,7 +61,7 @@ public class BookService {
             Booking booking = query.getSingleResult();
             book.setBooking(booking);
         }
-        final List<BookDTO> bookDTOS = allBooks.stream().map(booksMapper::toDto).collect(Collectors.toList());
+        final List<BookDTO> bookDTOS = allBooks.stream().map(booksMapper::toAvailableBookDto).collect(Collectors.toList());
         return bookDTOS;
 
     }
@@ -132,7 +132,7 @@ public class BookService {
         Book persistedBook = booksJpaRepository.findById(id).orElse(null);
 
         if (persistedBook != null && bookDTO != null) {
-            booksMapper.setParams(bookDTO, persistedBook);
+            booksMapper.setBookParams(bookDTO, persistedBook);
             persistedBook.getBookCategories().clear();
 
             for (CategoryDTO cDTO : bookDTO.getBookCategories()) {

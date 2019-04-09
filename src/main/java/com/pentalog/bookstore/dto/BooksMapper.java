@@ -12,21 +12,25 @@ import java.util.List;
 
 @Component
 public class BooksMapper {
+
     @Autowired
     private BookingsMapper bookingsMapper;
 
-    public Book fromDTO(BookDTO bookDTO){
+    /**
+     * Convert bookDTO to book
+     *
+     * @param bookDTO bookDTO
+     * @return book
+     */
+    public Book fromDTO(BookDTO bookDTO) {
         Book book = new Book();
-        setParams(bookDTO,book);
+        setBookParams(bookDTO, book);
 
         // Set categories associated with current book
         List<Category> bookCategories = new ArrayList<>();
         if (bookDTO.getBookCategories() != null) {
-            for (CategoryDTO c : bookDTO.getBookCategories()) {
-                Category category = new Category();
-                category.setId(c.getId());
-                category.setName(c.getName());
-                bookCategories.add(category);
+            for (CategoryDTO categoryDTO : bookDTO.getBookCategories()) {
+                bookCategories.add(toCategory(categoryDTO));
             }
             book.setBookCategories(bookCategories);
         }
@@ -56,12 +60,12 @@ public class BooksMapper {
         return book;
     }
 
-    public CategoryDTO toCategoryDto(Category c) {
-        CategoryDTO category = new CategoryDTO();
-        category.setId(c.getId());
-        category.setName(c.getName());
-        return category;
-    }
+    /**
+     * Convert book to bookDTO
+     *
+     * @param book book
+     * @return bookDTO
+     */
     public BookDTO toDto(Book book) {
         BookDTO bookDTO = new BookDTO();
         bookDTO.setId(book.getId());
@@ -87,23 +91,13 @@ public class BooksMapper {
         // Set bookings associated with current book
         List<BookingDTO> bookings = new ArrayList<>();
         if (book.getBookings() != null) {
-            if(book.getBooking()!=null){
+            for (Booking booking : book.getBookings()) {
                 BookingDTO bookingDTO = new BookingDTO();
-                bookingDTO.setId(book.getBooking().getId());
-                bookingDTO.setStartDate(book.getBooking().getStartDate());
-                bookingDTO.setEstimatedEndDate(book.getBooking().getEstimatedEndDate());
-                bookingDTO.setRealEndDate(book.getBooking().getRealEndDate());
+                bookingDTO.setId(booking.getId());
+                bookingDTO.setStartDate(booking.getStartDate());
+                bookingDTO.setEstimatedEndDate(booking.getEstimatedEndDate());
+                bookingDTO.setRealEndDate(booking.getRealEndDate());
                 bookings.add(bookingDTO);
-            }
-            else {
-                for (Booking booking : book.getBookings()) {
-                    BookingDTO bookingDTO = new BookingDTO();
-                    bookingDTO.setId(booking.getId());
-                    bookingDTO.setStartDate(booking.getStartDate());
-                    bookingDTO.setEstimatedEndDate(booking.getEstimatedEndDate());
-                    bookingDTO.setRealEndDate(booking.getRealEndDate());
-                    bookings.add(bookingDTO);
-                }
             }
             bookDTO.setBookings(bookings);
         }
@@ -124,7 +118,53 @@ public class BooksMapper {
         return bookDTO;
     }
 
-    public void setParams(BookDTO bookDTO, Book book) {
+    /**
+     * convert available book to available bookDTO
+     *
+     * @param book book
+     * @return bookDTO
+     */
+    public BookDTO toAvailableBookDto(Book book) {
+
+        // Set bookDTO parameters
+        BookDTO bookDTO = new BookDTO();
+        bookDTO.setId(book.getId());
+        bookDTO.setTitle(book.getTitle());
+        bookDTO.setAuthor(book.getAuthor());
+        bookDTO.setBookNumber(book.getBookNumber());
+        bookDTO.setBookImage(book.getBookImage());
+        bookDTO.setPublishedDate(book.getPublishedDate());
+        bookDTO.setBookLocation(book.getBookLocation());
+
+        // Set categories associated with current book
+        List<CategoryDTO> bookCategories = new ArrayList<>();
+        if (book.getBookCategories() != null) {
+            for (Category category : book.getBookCategories()) {
+                bookCategories.add(toCategoryDto(category));
+            }
+            bookDTO.setBookCategories(bookCategories);
+        }
+
+        // Set available bookingDTO
+        if (book.getBooking() != null) {
+            BookingDTO bookingDTO = new BookingDTO();
+            bookingDTO.setId(book.getBooking().getId());
+            bookingDTO.setStartDate(book.getBooking().getStartDate());
+            bookingDTO.setEstimatedEndDate(book.getBooking().getEstimatedEndDate());
+            bookingDTO.setRealEndDate(book.getBooking().getRealEndDate());
+            bookDTO.setAvailableBooking(bookingDTO);
+        }
+
+        return bookDTO;
+    }
+
+    /**
+     * Set book's parameters
+     *
+     * @param bookDTO bookDTO
+     * @param book book
+     */
+    public void setBookParams(BookDTO bookDTO, Book book) {
         book.setId(bookDTO.getId());
         book.setTitle(bookDTO.getTitle());
         book.setAuthor(bookDTO.getAuthor());
@@ -132,6 +172,32 @@ public class BooksMapper {
         book.setBookImage(bookDTO.getBookImage());
         book.setPublishedDate(bookDTO.getPublishedDate());
         book.setBookLocation(bookDTO.getBookLocation());
+    }
+
+    /**
+     * Convert category to CategoryDTO
+     *
+     * @param category category
+     * @return categoryDTO
+     */
+    public CategoryDTO toCategoryDto(Category category) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setId(category.getId());
+        categoryDTO.setName(category.getName());
+        return categoryDTO;
+    }
+
+    /**
+     * Convert categoryDTO to category
+     *
+     * @param categoryDTO categoryDTO
+     * @return category
+     */
+    private Category toCategory(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        category.setId(categoryDTO.getId());
+        category.setName(categoryDTO.getName());
+        return category;
     }
 
 }

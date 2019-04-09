@@ -82,7 +82,7 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void aInsertUser() {
-        User userToBePersisted = UserSupplier.supplyUserForInsert();
+        User userToBePersisted = UserSupplier.supplyUserForInsert().get();
         ResponseEntity<User> responseEntity =
                 restTemplate.postForEntity("http://localhost:" + port + "/bookstore/users/", userToBePersisted, User.class);
         User user = responseEntity.getBody();

@@ -75,7 +75,7 @@ public class UserServiceTest {
 
     @Test
     public void insert() {
-        final User suppliedUser = UserSupplier.supplyUserForInsert();
+        final User suppliedUser = UserSupplier.supplyUserForInsert().get();
         final UserDTO suppliedUserDto = UserSupplier.supplyUserDTOForInsert();
 
         Mockito.doReturn(suppliedUser).when(userJpaRepository).save(suppliedUser);
@@ -94,7 +94,7 @@ public class UserServiceTest {
         Mockito.doReturn(suppliedUser).when(userJpaRepository).save(suppliedUser);
         UserDTO userDTO = userService.update(suppliedUserDto.getId(),suppliedUserDto);
         assertEquals(1,userDTO.getId());
-        assertEquals("delia",userDTO.getUserName());
+        assertEquals("mira",userDTO.getUserName());
     }
     @Test
     public void updateTestUserNotFound() {

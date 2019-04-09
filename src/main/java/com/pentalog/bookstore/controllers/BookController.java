@@ -22,6 +22,7 @@ public class BookController {
 
     /**
      * Find all categories where a book is registered
+     *
      * @param bookId book id
      * @return categories where boo kis registered
      */
@@ -32,6 +33,7 @@ public class BookController {
 
     /**
      * Find all bookings for given book
+     *
      * @param bookId book id
      * @return all bookings for given book
      */
@@ -42,6 +44,7 @@ public class BookController {
 
     /**
      * Find book by id
+     *
      * @param id id
      * @return book by id
      */
@@ -52,6 +55,7 @@ public class BookController {
 
     /**
      * Find books by title
+     *
      * @param title title
      * @return books by title
      */
@@ -62,6 +66,7 @@ public class BookController {
 
     /**
      * Find books by author
+     *
      * @param author author
      * @return books by author
      */
@@ -72,25 +77,30 @@ public class BookController {
 
     /**
      * Find all books
+     *
      * @return books
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<Collection<BookDTO>> getAllBooks() {
-        return new ResponseEntity<>(bookService.findAllBooks(), HttpStatus.OK);
+    @RequestMapping(value = "/booksAvailability", method = RequestMethod.GET)
+    public ResponseEntity<Collection<BookDTO>> getBooksAvailability() {
+        return new ResponseEntity<>(bookService.findBooksAvailability(), HttpStatus.OK);
     }
 
     /**
      * Insert book
+     *
      * @param bookDTO book
      * @return inserted book
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<BookDTO> insertBook(@RequestBody BookDTO bookDTO) {
-        return new ResponseEntity<>(bookService.insert(bookDTO), HttpStatus.OK);
+        final BookDTO insertedBook = bookService.insert(bookDTO);
+        return new ResponseEntity<>(insertedBook, HttpStatus.OK);
+
     }
 
     /**
      * Update book
+     *
      * @param bookDTO book
      * @return updated book
      */
@@ -101,6 +111,7 @@ public class BookController {
 
     /**
      * Delete book
+     *
      * @param id id
      * @return status message
      */

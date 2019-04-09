@@ -19,6 +19,7 @@ public class BookingController {
 
     /**
      * Get all bookings
+     *
      * @return bookings
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -28,6 +29,7 @@ public class BookingController {
 
     /**
      * Persist booking
+     *
      * @param bookingDTO booking
      * @return persisted booking
      */
@@ -37,8 +39,7 @@ public class BookingController {
     }
 
     /**
-     *
-     * @param id id
+     * @param id         id
      * @param bookingDTO booking
      * @return updated booking
      */
@@ -49,6 +50,7 @@ public class BookingController {
 
     /**
      * Delete booking
+     *
      * @param id id
      * @return status message
      */

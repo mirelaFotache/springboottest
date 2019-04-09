@@ -37,7 +37,7 @@ public class UserJpaRepositoryTest {
 
     @Test
     public void testInsertUser() {
-        User user = UserSupplier.supplyUserForInsert();
+        User user = UserSupplier.supplyUserForInsert().get();
         User persistedUser = userRepo.save(user);
         Assert.assertTrue(persistedUser != null && persistedUser.getId() != 0 && persistedUser.getUserName().equals("mira"));
     }

@@ -21,6 +21,8 @@ public class BookDTO {
     private List<BookingDTO> bookings;
     private List<RatingDTO> ratings;
 
+    private BookingDTO availableBooking;
+
     public List<BookingDTO> getBookings() {
         return bookings;
     }
@@ -101,4 +103,11 @@ public class BookDTO {
         this.bookLocation = bookLocation;
     }
 
+    public BookingDTO getAvailableBooking() {
+        return availableBooking;
+    }
+
+    public void setAvailableBooking(BookingDTO availableBooking) {
+        this.availableBooking = availableBooking;
+    }
 }

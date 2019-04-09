@@ -4,6 +4,7 @@ import com.pentalog.bookstore.dto.RoleDTO;
 import com.pentalog.bookstore.dto.UserDTO;
 import com.pentalog.bookstore.persistence.entities.Role;
 import com.pentalog.bookstore.persistence.entities.User;
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +18,13 @@ public class UserSupplier {
         return user;
     }
 
-    public static User supplyUserForInsert(){
+    public static Optional<User> supplyUserForInsert(){
         User user = new User();
         user.setId(1);
         user.setUserName("mira");
-        return user;
+        return Optional.of(user);
     }
+
     public static UserDTO supplyUserDTOForInsert(){
         UserDTO user = new UserDTO();
         user.setId(1);

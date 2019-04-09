@@ -8,6 +8,9 @@ import java.util.Collection;
 
 public interface BookingJpaRepository extends CommonRepository<Booking, Integer> {
 
-@Query("SELECT b FROM Booking b where b.bookingBook.id=:bookId")
-Collection<Booking> findBookingsByBookId(@Param("bookId") int bookId);
+    @Query("SELECT b FROM Booking b where b.bookingBook.id=:bookId")
+    Collection<Booking> findBookingsByBookId(@Param("bookId") int bookId);
+
+    @Query("SELECT count(b) FROM Booking b where b.bookingUser.id=:userId and b.realEndDate is null")
+    Integer findBookingsByUserId(@Param("userId") int userId);
 }

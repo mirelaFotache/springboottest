@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Component
 public class UsersMapper {
-    Optional<UserDTO> userDtoOpt;
+    private Optional<UserDTO> userDtoOpt;
 
     /**
      * Convert userDTO to user
