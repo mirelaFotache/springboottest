@@ -11,35 +11,40 @@ import java.util.Optional;
 @Component
 public class UsersMapper {
     private Optional<UserDTO> userDtoOpt;
+    private Optional<User> userOpt;
 
     /**
      * Convert userDTO to user
      *
-     * @param userDTO userDTO
-     * @return user
+     * @param userDTOOptional userDTO of type Optional
+     * @return optional
      */
-    public User fromDTO(UserDTO userDTO) {
-        User user = new User();
-        user.setId(userDTO.getId());
-        user.setUserName(userDTO.getUserName());
-        user.setPassword(userDTO.getPassword());
-        user.setCity(userDTO.getCity());
-        user.setAddress(userDTO.getAddress());
-        user.setEmail(userDTO.getEmail());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setPhoneNumber(userDTO.getPhoneNumber());
-        if (userDTO.getUserRoles() != null) {
-            List<Role> roles = new ArrayList<>();
-            for (RoleDTO roleDTO : userDTO.getUserRoles()) {
-                Role role = new Role();
-                role.setId(roleDTO.getId());
-                role.setName(roleDTO.getName());
-                roles.add(role);
+    public Optional<User> fromDTO(Optional<UserDTO> userDTOOptional) {
+
+        userDTOOptional.ifPresent(userDTO -> {
+            User user = new User();
+            user.setId(userDTO.getId());
+            user.setUserName(userDTO.getUserName());
+            user.setPassword(userDTO.getPassword());
+            user.setCity(userDTO.getCity());
+            user.setAddress(userDTO.getAddress());
+            user.setEmail(userDTO.getEmail());
+            user.setFirstName(userDTO.getFirstName());
+            user.setLastName(userDTO.getLastName());
+            user.setPhoneNumber(userDTO.getPhoneNumber());
+            if (userDTO.getUserRoles() != null) {
+                List<Role> roles = new ArrayList<>();
+                for (RoleDTO roleDTO : userDTO.getUserRoles()) {
+                    Role role = new Role();
+                    role.setId(roleDTO.getId());
+                    role.setName(roleDTO.getName());
+                    roles.add(role);
+                }
+                user.setUserRoles(roles);
             }
-            user.setUserRoles(roles);
-        }
-        return user;
+            userOpt = Optional.of(user);
+        });
+        return userOpt;
     }
 
     /**
@@ -61,10 +66,10 @@ public class UsersMapper {
             userDTO.setFirstName(user.getFirstName());
             userDTO.setLastName(user.getLastName());
             userDTO.setPhoneNumber(user.getPhoneNumber());
-            if (user.getUserRoles() != null && user.getUserRoles().size()>0) {
+            if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
                 List<RoleDTO> roles = new ArrayList<>();
                 for (Role role : user.getUserRoles()) {
-                    if(role!=null) {
+                    if (role != null) {
                         RoleDTO roleDTO = new RoleDTO();
                         roleDTO.setId(role.getId());
                         roleDTO.setName(role.getName());

@@ -18,6 +18,26 @@ public class BookingController {
     private BookingService bookingService;
 
     /**
+     * Find bookings by title, author and availability
+     *
+     * @param title        title
+     * @param author       author
+     * @param availability availability
+     * @return all found bookings
+     */
+    @RequestMapping(value = "/bookingPreferences", method = RequestMethod.GET)
+    public ResponseEntity<Collection<BookingDTO>> getBookingsByTitleAuthorAvailability(@RequestParam("title") String title,
+                                                                                       @RequestParam("author") String author,
+                                                                                       @RequestParam("availability") boolean availability) {
+        final Collection<BookingDTO> bookings = bookingService.findBookingsByTitleAuthorAvailability(title, author, availability);
+        if (bookings != null && bookings.size() > 0)
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+        else {
+            throw new BookstoreException("No booking found!");
+        }
+    }
+
+    /**
      * Get all bookings
      *
      * @return bookings

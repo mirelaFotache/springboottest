@@ -18,14 +18,24 @@ public class RatingController {
     private RatingService ratingService;
 
     /**
-     * Get all ratings associated with given user id
+     * Get all ratings associated with given user
      *
      * @param userId user id
      * @return ratings for given user
      */
-    @RequestMapping(value = "/{user_id}/ratings/", method = RequestMethod.GET)
-    public ResponseEntity<Collection<RatingDTO>> getUserRatings(@PathVariable("user_id") Integer userId) {
-        return new ResponseEntity<>(ratingService.findRatingsByUserId(userId), HttpStatus.OK);
+    @RequestMapping(value = "/{user_id}/ratingsPerUser/", method = RequestMethod.GET)
+    public ResponseEntity<Collection<RatingDTO>> getRatingsPerUser(@PathVariable("user_id") Integer userId) {
+        return new ResponseEntity<>(ratingService.findRatingsPerUser(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Get all ratings associated with given book
+     * @param bookId book id
+     * @return ratings for given book
+     */
+    @RequestMapping(value = "/{book_id}/ratingsPerBook/", method = RequestMethod.GET)
+    public ResponseEntity<Collection<RatingDTO>> getRatingsPerBook(@PathVariable("book_id") Integer bookId) {
+        return new ResponseEntity<>(ratingService.findRatingsPerBook(bookId), HttpStatus.OK);
     }
 
     /**

@@ -34,7 +34,12 @@ public class BookingService {
     private YAMLConfig yamlConfig;
 
 
-    public BookingService(BookingJpaRepository bookingJpaRepository, BookingsMapper bookingsMapper, EntityManager em, UserJpaRepository userJpaRepository, BooksJpaRepository bookJpaRepository, YAMLConfig yamlConfig) {
+    public BookingService(BookingJpaRepository bookingJpaRepository,
+                          BookingsMapper bookingsMapper,
+                          EntityManager em,
+                          UserJpaRepository userJpaRepository,
+                          BooksJpaRepository bookJpaRepository,
+                          YAMLConfig yamlConfig) {
         this.bookingJpaRepository = bookingJpaRepository;
         this.bookingsMapper = bookingsMapper;
         this.em = em;
@@ -64,6 +69,23 @@ public class BookingService {
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookingDTO> findBookingsByBookId(Integer bookId) {
         return bookingJpaRepository.findBookingsByBookId(bookId).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
+    }
+
+    /**
+     * Find bookings by title, author and availability
+     *
+     * @param title        title
+     * @param author       author
+     * @param availability availability
+     * @return bookings found based on criteria
+     */
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Collection<BookingDTO> findBookingsByTitleAuthorAvailability(String title, String author, boolean availability) {
+        if(availability){
+            return bookingJpaRepository.findBookingsByTitleAuthorAvailabilityTrue(title, author).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
+        }else{
+            return bookingJpaRepository.findBookingsByTitleAuthorAvailabilityFalse(title, author).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
+        }
     }
 
     /**

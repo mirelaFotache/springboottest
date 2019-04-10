@@ -30,9 +30,26 @@ public class RatingService {
     @Autowired
     private RatingMapper ratingMapper;
 
+    /**
+     * Find all ratings per user
+     *
+     * @param userId userId
+     * @return all ratings per user
+     */
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    public Collection<RatingDTO> findRatingsByUserId(Integer userId) {
+    public Collection<RatingDTO> findRatingsPerUser(Integer userId) {
         return ratingJpaRepository.findUserRatings(userId).stream().map(ratingMapper::toDto).collect(Collectors.toList());
+    }
+
+    /**
+     * Find all ratings per book
+     *
+     * @param bookId bookId
+     * @return all ratings per book
+     */
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Collection<RatingDTO> findRatingsPerBook(Integer bookId) {
+        return ratingJpaRepository.findBookRatings(bookId).stream().map(ratingMapper::toDto).collect(Collectors.toList());
     }
 
     /**
@@ -58,7 +75,7 @@ public class RatingService {
             User user = userJpaRepository.findById(ratingDTO.getRatingUser().getId()).orElse(null);
             Book book = booksJpaRepository.findById(ratingDTO.getRatingBook().getId()).orElse(null);
             Rating rating = new Rating();
-            if(user!=null && book!=null) {
+            if (user != null && book != null) {
                 rating.setComment(ratingDTO.getComment());
                 rating.setCommentDate(ratingDTO.getCommentDate());
                 rating.setRating(ratingDTO.getRating());
@@ -90,12 +107,12 @@ public class RatingService {
             persistedRating.setComment(ratingDTO.getComment());
             persistedRating.setCommentDate(ratingDTO.getCommentDate());
 
-            if(ratingDTO.getRatingUser()!=null && ratingDTO.getRatingBook()!=null){
+            if (ratingDTO.getRatingUser() != null && ratingDTO.getRatingBook() != null) {
                 User user = userJpaRepository.findById(ratingDTO.getRatingUser().getId()).orElse(null);
                 persistedRating.setRatingUser(user);
                 Book book = booksJpaRepository.findById(ratingDTO.getRatingBook().getId()).orElse(null);
                 persistedRating.setRatingBook(book);
-            }else{
+            } else {
                 throw new BookstoreException("User or book not found!");
             }
 

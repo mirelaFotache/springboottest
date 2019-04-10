@@ -75,15 +75,15 @@ public class UserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserDTO insert(UserDTO userDTO) {
         if (userDTO != null) {
-            final User user = userMapper.fromDTO(userDTO);
-            user.getUserRoles().clear();
+            final Optional<User> userOptional = userMapper.fromDTO(Optional.of(userDTO));
+            userOptional.ifPresent(user -> user.getUserRoles().clear());
 
             for (RoleDTO rDTO : userDTO.getUserRoles()) {
                 Role role = roleJpaRepository.findById(rDTO.getId()).orElse(null);
-                user.getUserRoles().add(role);
+                userOptional.ifPresent(user -> user.getUserRoles().add(role));
             }
 
-            return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(user))).orElse(null);
+            return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userOptional.get()))).orElse(null);
         } else {
             throw new BookstoreException("User not found!");
         }
