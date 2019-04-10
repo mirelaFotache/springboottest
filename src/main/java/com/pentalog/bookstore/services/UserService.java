@@ -23,7 +23,7 @@ public class UserService {
     private UsersMapper userMapper;
     private RoleJpaRepository roleJpaRepository;
 
-    public UserService(UserJpaRepository userJpaRepository,UsersMapper userMapper, RoleJpaRepository roleJpaRepository ) {
+    public UserService(UserJpaRepository userJpaRepository, UsersMapper userMapper, RoleJpaRepository roleJpaRepository) {
         this.userJpaRepository = userJpaRepository;
         this.userMapper = userMapper;
         this.roleJpaRepository = roleJpaRepository;
@@ -38,7 +38,7 @@ public class UserService {
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<UserDTO> findByUserName(String userName) {
         return userJpaRepository.findByUserName(userName.toLowerCase()).stream()
-                .map(user->userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
+                .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
                 .collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class UserService {
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<UserDTO> findAll() {
         return userJpaRepository.findAll().stream()
-                .map(user->userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
+                .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
                 .collect(Collectors.toList());
     }
 
@@ -74,7 +74,19 @@ public class UserService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public UserDTO insert(UserDTO userDTO) {
-        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userMapper.fromDTO(userDTO)))).orElse(null);
+        if (userDTO != null) {
+            final User user = userMapper.fromDTO(userDTO);
+            user.getUserRoles().clear();
+
+            for (RoleDTO rDTO : userDTO.getUserRoles()) {
+                Role role = roleJpaRepository.findById(rDTO.getId()).orElse(null);
+                user.getUserRoles().add(role);
+            }
+
+            return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(user))).orElse(null);
+        } else {
+            throw new BookstoreException("User not found!");
+        }
     }
 
     /**

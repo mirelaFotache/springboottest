@@ -1,27 +1,20 @@
 package com.pentalog.bookstore.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import javax.annotation.PostConstruct;
-
-@Component
+@ConfigurationProperties(prefix="bookings")
 public class YAMLConfig {
-    private static Logger logger = LoggerFactory.getLogger(YAMLConfig.class);
 
-    @Value("${booking.max.allowed}")
-    private Integer maxBookingsAllowed;
+    private Integer maxAllowed;
 
-    public Integer getMaxBookingsAllowed() {
-        return maxBookingsAllowed;
+    public YAMLConfig() {
     }
 
-    @PostConstruct
-    public void postConstruct(){
-        logger.info("maxBookingsAllowed : "+maxBookingsAllowed);
+    public Integer getMaxAllowed() {
+        return maxAllowed;
     }
 
-    //@EnableConfigurationProperties and @ConfigurationProperties are used in test files for example...
+    public void setMaxAllowed(Integer maxAllowed) {
+        this.maxAllowed = maxAllowed;
+    }
 }

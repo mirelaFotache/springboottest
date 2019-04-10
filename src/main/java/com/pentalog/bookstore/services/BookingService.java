@@ -12,7 +12,6 @@ import com.pentalog.bookstore.persistence.repositories.BookingJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
 import com.pentalog.bookstore.utils.YAMLConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,16 +30,18 @@ public class BookingService {
     private EntityManager em;
     private UserJpaRepository userJpaRepository;
     private BooksJpaRepository bookJpaRepository;
-    @Autowired
+
     private YAMLConfig yamlConfig;
 
 
-    public BookingService(BookingJpaRepository bookingJpaRepository, BookingsMapper bookingsMapper, EntityManager em, UserJpaRepository userJpaRepository, BooksJpaRepository bookJpaRepository) {
+    public BookingService(BookingJpaRepository bookingJpaRepository, BookingsMapper bookingsMapper, EntityManager em, UserJpaRepository userJpaRepository, BooksJpaRepository bookJpaRepository, YAMLConfig yamlConfig) {
         this.bookingJpaRepository = bookingJpaRepository;
         this.bookingsMapper = bookingsMapper;
         this.em = em;
         this.userJpaRepository = userJpaRepository;
         this.bookJpaRepository = bookJpaRepository;
+        this.yamlConfig = yamlConfig;
+
     }
 
 
@@ -85,14 +86,14 @@ public class BookingService {
 
             findUserAndBookById(userDTO, bookDTO, booking);
             // If given user has more than N active bookings(where realEndDate is null) no other booking is allowed
-            if (bookingJpaRepository.findBookingsByUserId(userDTO.getId()) < yamlConfig.getMaxBookingsAllowed()) {
+            if (bookingJpaRepository.findBookingsByUserId(userDTO.getId()) < yamlConfig.getMaxAllowed()) {
                 final Booking savedBooking = bookingJpaRepository.save(booking);
 
                 return bookingsMapper.toDTO(savedBooking);
             } else {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Booking not allowed. User has at least ");
-                sb.append(yamlConfig.getMaxBookingsAllowed());
+                sb.append(yamlConfig.getMaxAllowed());
                 sb.append(" active bookings");
                 throw new BookstoreException(sb.toString());
             }

@@ -1,1 +1,2 @@
-booking.max.allowed: 3
+bookings:
+  maxAllowed: 3

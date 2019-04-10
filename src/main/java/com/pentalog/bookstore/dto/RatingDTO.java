@@ -1,10 +1,7 @@
 package com.pentalog.bookstore.dto;
 
-import lombok.Data;
-
 import java.util.Date;
 
-@Data
 public class RatingDTO {
 
     private int id;

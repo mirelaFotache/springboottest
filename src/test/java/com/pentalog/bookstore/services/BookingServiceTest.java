@@ -27,7 +27,7 @@ public class BookingServiceTest {
     private static String HQL_SELECT_BOOKING = "SELECT b FROM Booking b where b.bookingBook.id=:bookId and b.bookingUser.id=:userId order by b.startDate desc";
 
     private BookingService bookingService = new BookingService(Mockito.mock(BookingJpaRepository.class), Mockito.mock(BookingsMapper.class),
-            Mockito.mock(EntityManager.class), Mockito.mock(UserJpaRepository.class), Mockito.mock(BooksJpaRepository.class));
+            Mockito.mock(EntityManager.class), Mockito.mock(UserJpaRepository.class), Mockito.mock(BooksJpaRepository.class), null);
 
     private BookingJpaRepository bookingJpaRepository = bookingService.getBookingJpaRepository();
     private BookingsMapper bookingsMapper = bookingService.getBookingsMapper();

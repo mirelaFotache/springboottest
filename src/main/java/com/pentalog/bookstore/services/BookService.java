@@ -107,15 +107,15 @@ public class BookService {
      */
     public BookDTO insert(BookDTO bookDTO) {
         Book book = booksMapper.fromDTO(bookDTO);
-        List<Category> categories = book.getBookCategories();
-        int counter = 0;
-        if (categories != null && categories.size() > 0) {
-            for (Category category : categories) {
-                Category persistedCategory = categoryJpaRepository.findById(category.getId()).orElse(null);
+
+        if (bookDTO.getBookCategories() != null && bookDTO.getBookCategories().size() > 0) {
+            book.getBookCategories().clear();
+
+            for (CategoryDTO categoryDTO : bookDTO.getBookCategories()) {
+                Category persistedCategory = categoryJpaRepository.findById(categoryDTO.getId()).orElse(null);
                 if (persistedCategory != null) {
-                    persistedCategory.setName(categories.get(counter).getName());
+                    book.getBookCategories().add(persistedCategory);
                 }
-                counter++;
             }
         }
         return booksMapper.toDto(booksJpaRepository.save(book));

@@ -24,7 +24,7 @@ public class BooksMapper {
      */
     public Book fromDTO(BookDTO bookDTO) {
         Book book = new Book();
-        setBookParams(bookDTO, book);
+        setBookParamsAndId(bookDTO, book);
 
         // Set categories associated with current book
         List<Category> bookCategories = new ArrayList<>();
@@ -157,6 +157,10 @@ public class BooksMapper {
 
         return bookDTO;
     }
+    public void setBookParamsAndId(BookDTO bookDTO, Book book) {
+        book.setId(bookDTO.getId());
+        setBookParams(bookDTO, book);
+    }
 
     /**
      * Set book's parameters
@@ -165,7 +169,6 @@ public class BooksMapper {
      * @param book book
      */
     public void setBookParams(BookDTO bookDTO, Book book) {
-        book.setId(bookDTO.getId());
         book.setTitle(bookDTO.getTitle());
         book.setAuthor(bookDTO.getAuthor());
         book.setBookNumber(bookDTO.getBookNumber());
