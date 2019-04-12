@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class RoleService {
 
     @Resource
@@ -38,7 +38,6 @@ public class RoleService {
      * @param userId user id
      * @return roles
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<RoleDTO> findRolesByUserId(Integer userId) {
         return roleJpaRepository.findUserRoles(userId).stream().map(roleMapper::toDto).collect(Collectors.toList());
     }
@@ -58,6 +57,7 @@ public class RoleService {
      * @param roleDTO roleDTO
      * @return inserted roleDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public RoleDTO insert(RoleDTO roleDTO) {
         return roleMapper.toDto(roleJpaRepository.save(roleMapper.fromDto(roleDTO)));
     }
@@ -68,6 +68,7 @@ public class RoleService {
      * @param roleDTO roleDTO
      * @return updated roleDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public RoleDTO update(Integer id, RoleDTO roleDTO) {
         Role persistedRole = roleJpaRepository.findById(id).orElse(null);
 
@@ -86,6 +87,7 @@ public class RoleService {
      * @param id id
      * @return 0 when user not removed and 1 if user removed successfully
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
         return roleJpaRepository.removeById(id);
     }

@@ -1,11 +1,12 @@
 package com.pentalog.bookstore;
 
+import com.pentalog.bookstore.utils.InternationalizationConfig;
 import com.pentalog.bookstore.utils.YAMLConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@EnableConfigurationProperties(YAMLConfig.class)
+@EnableConfigurationProperties({YAMLConfig.class, InternationalizationConfig.class})
 @SpringBootApplication(scanBasePackages={"com.pentalog"})
 public class BookstoreApplication {
 

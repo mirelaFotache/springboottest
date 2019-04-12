@@ -3,6 +3,9 @@ package com.pentalog.bookstore.controllers;
 import com.pentalog.bookstore.dto.RoleDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.RoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,8 @@ public class RoleController {
 
     @Resource
     private RoleService roleService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Find role by name
@@ -76,8 +81,8 @@ public class RoleController {
     public ResponseEntity<String> deleteRole(@PathVariable("id") Integer id) {
         final Long deleted = roleService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("Role successfully deleted", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.role.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException("Role not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.role.found", null, LocaleContextHolder.getLocale()));
     }
 }

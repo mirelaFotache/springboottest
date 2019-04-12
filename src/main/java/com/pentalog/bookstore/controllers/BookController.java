@@ -1,10 +1,14 @@
 package com.pentalog.bookstore.controllers;
 
-import com.pentalog.bookstore.dto.*;
+import com.pentalog.bookstore.dto.BookDTO;
+import com.pentalog.bookstore.dto.BookingDTO;
+import com.pentalog.bookstore.dto.CategoryDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.BookService;
 import com.pentalog.bookstore.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,28 @@ public class BookController {
     private BookService bookService;
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private MessageSource messageSource;
+
+    /**
+     * Find bookings by title, author and availability
+     *
+     * @param title        title
+     * @param author       author
+     * @param availability availability
+     * @return all found bookings
+     */
+    @RequestMapping(value = "/bookingPreferences", method = RequestMethod.GET)
+    public ResponseEntity<Collection<BookDTO>> getBooksByTitleAuthorAvailability(@RequestParam("title") String title,
+                                                                                 @RequestParam("author") String author,
+                                                                                 @RequestParam("availability") String availability) {
+        final Collection<BookDTO> availableBooksByTitleAndAuthor = bookService.findBooksByTitleAuthorAndAvailability(title, author, availability);
+        if (availableBooksByTitleAndAuthor != null && availableBooksByTitleAndAuthor.size() > 0)
+            return new ResponseEntity<>(availableBooksByTitleAndAuthor, HttpStatus.OK);
+        else {
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
+        }
+    }
 
     /**
      * Find all categories where a book is registered
@@ -119,8 +145,8 @@ public class BookController {
     public ResponseEntity<String> deleteBook(@PathVariable("id") Integer id) {
         final Long deleted = bookService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("Book successfully deleted!", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.book.deleted",null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException("Book not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
     }
 }

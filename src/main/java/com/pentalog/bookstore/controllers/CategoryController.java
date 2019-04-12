@@ -3,6 +3,9 @@ package com.pentalog.bookstore.controllers;
 import com.pentalog.bookstore.dto.CategoryDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,8 @@ public class CategoryController {
 
     @Resource
     private CategoryService categoryService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Find category by name
@@ -66,8 +71,8 @@ public class CategoryController {
     public ResponseEntity<String> delete(@PathVariable("id") Integer id) {
         final Long deleted = categoryService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("Category successfully deleted!", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.category.deleted",null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException("Category not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.category.found",null, LocaleContextHolder.getLocale()));
     }
 }

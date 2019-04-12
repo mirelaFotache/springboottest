@@ -16,6 +16,8 @@ public class BookDTO {
     private String bookImage;
     private Date publishedDate;
     private BookLocation bookLocation;
+    private int stock;
+    private int stockAvailableBook;
 
     private List<CategoryDTO> bookCategories;
     private List<BookingDTO> bookings;
@@ -109,5 +111,21 @@ public class BookDTO {
 
     public void setAvailableBooking(BookingDTO availableBooking) {
         this.availableBooking = availableBooking;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public int getStockAvailableBook() {
+        return stockAvailableBook;
+    }
+
+    public void setStockAvailableBook(int stockAvailableBook) {
+        this.stockAvailableBook = stockAvailableBook;
     }
 }

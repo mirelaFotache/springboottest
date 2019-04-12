@@ -69,12 +69,7 @@ public class BooksMapper {
     public BookDTO toDto(Book book) {
         BookDTO bookDTO = new BookDTO();
         bookDTO.setId(book.getId());
-        bookDTO.setTitle(book.getTitle());
-        bookDTO.setAuthor(book.getAuthor());
-        bookDTO.setBookNumber(book.getBookNumber());
-        bookDTO.setBookImage(book.getBookImage());
-        bookDTO.setPublishedDate(book.getPublishedDate());
-        bookDTO.setBookLocation(book.getBookLocation());
+        setBookDTOParams(book, bookDTO);
 
         // Set categories associated with current book
         List<CategoryDTO> bookCategories = new ArrayList<>();
@@ -119,6 +114,23 @@ public class BooksMapper {
     }
 
     /**
+     * Set BookDTO parameters
+     *
+     * @param book    book
+     * @param bookDTO bookDTO
+     */
+    private void setBookDTOParams(Book book, BookDTO bookDTO) {
+        bookDTO.setTitle(book.getTitle());
+        bookDTO.setAuthor(book.getAuthor());
+        bookDTO.setBookNumber(book.getBookNumber());
+        bookDTO.setBookImage(book.getBookImage());
+        bookDTO.setPublishedDate(book.getPublishedDate());
+        bookDTO.setBookLocation(book.getBookLocation());
+        bookDTO.setStock(book.getStock());
+        bookDTO.setStockAvailableBook(book.getStockAvailableBook());
+    }
+
+    /**
      * convert available book to available bookDTO
      *
      * @param book book
@@ -129,12 +141,7 @@ public class BooksMapper {
         // Set bookDTO parameters
         BookDTO bookDTO = new BookDTO();
         bookDTO.setId(book.getId());
-        bookDTO.setTitle(book.getTitle());
-        bookDTO.setAuthor(book.getAuthor());
-        bookDTO.setBookNumber(book.getBookNumber());
-        bookDTO.setBookImage(book.getBookImage());
-        bookDTO.setPublishedDate(book.getPublishedDate());
-        bookDTO.setBookLocation(book.getBookLocation());
+        setBookDTOParams(book, bookDTO);
 
         // Set categories associated with current book
         List<CategoryDTO> bookCategories = new ArrayList<>();
@@ -157,6 +164,7 @@ public class BooksMapper {
 
         return bookDTO;
     }
+
     public void setBookParamsAndId(BookDTO bookDTO, Book book) {
         book.setId(bookDTO.getId());
         setBookParams(bookDTO, book);
@@ -166,7 +174,7 @@ public class BooksMapper {
      * Set book's parameters
      *
      * @param bookDTO bookDTO
-     * @param book book
+     * @param book    book
      */
     public void setBookParams(BookDTO bookDTO, Book book) {
         book.setTitle(bookDTO.getTitle());
@@ -175,6 +183,8 @@ public class BooksMapper {
         book.setBookImage(bookDTO.getBookImage());
         book.setPublishedDate(bookDTO.getPublishedDate());
         book.setBookLocation(bookDTO.getBookLocation());
+        book.setStock(bookDTO.getStock());
+        book.setStockAvailableBook(bookDTO.getStockAvailableBook());
     }
 
     /**

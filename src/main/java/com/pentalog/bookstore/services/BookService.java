@@ -10,21 +10,23 @@ import com.pentalog.bookstore.persistence.entities.Category;
 import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.CategoryJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class BookService {
 
-    public static final String BOOK_NOT_FOUND = "Book not found!";
     @Autowired
     private BooksJpaRepository booksJpaRepository;
     @Autowired
@@ -33,6 +35,36 @@ public class BookService {
     private BooksMapper booksMapper;
     @Autowired
     private EntityManager em;
+    @Autowired
+    private MessageSource messageSource;
+
+    /**
+     * Find books by title, author and availability
+     *
+     * @param title        title
+     * @param author       author
+     * @param availability availability
+     * @return books found based on criteria
+     */
+    public Collection<BookDTO> findBooksByTitleAuthorAndAvailability(String title, String author, String availability) {
+        List<Book> books = new ArrayList<>();
+
+        final Collection<Book> booksByTitleOrAuthor = booksJpaRepository.findBooksByTitleOrAuthor(title, author);
+        for (Book book : booksByTitleOrAuthor) {
+            //If user requested only for the available books then check if stock per book is greater than the number of reservations
+            if ("0".equals(availability)) {
+                if (book.getStock() >= book.getStockAvailableBook() && book.getStockAvailableBook() != 0) {
+                    books.add(book);
+                }
+            }//If user requested only for the unavailable books then check if stock per book is equal with the number of reservations
+            else if ("1".equals(availability)) {
+                if (book.getStockAvailableBook() == 0) {
+                    books.add(book);
+                }
+            }
+        }
+        return books.stream().map(booksMapper::toAvailableBookDto).collect(Collectors.toList());
+    }
 
     /**
      * Find categories asociated with given book
@@ -40,7 +72,6 @@ public class BookService {
      * @param bookId bookId
      * @return Categories
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<CategoryDTO> findCategoriesByBookId(Integer bookId) {
         return booksJpaRepository.findBookCategories(bookId).stream().map(booksMapper::toCategoryDto).collect(Collectors.toList());
     }
@@ -50,7 +81,6 @@ public class BookService {
      *
      * @return books list
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookDTO> findBooksAvailability() {
         final List<Book> allBooks = booksJpaRepository.findAllBooks();
         for (Book book : allBooks) {
@@ -72,7 +102,6 @@ public class BookService {
      * @param title title
      * @return books list
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookDTO> findByTitle(String title) {
         return booksJpaRepository.findByTitle(title.toLowerCase()).stream().map(booksMapper::toDto).collect(Collectors.toList());
     }
@@ -83,7 +112,6 @@ public class BookService {
      * @param id id
      * @return book by id
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public BookDTO findById(Integer id) {
         return booksMapper.toDto(booksJpaRepository.findById(id).orElse(null));
     }
@@ -94,7 +122,6 @@ public class BookService {
      * @param author author
      * @return books list
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookDTO> findByAuthor(String author) {
         return booksJpaRepository.findByAuthor(author.toLowerCase()).stream().map(booksMapper::toDto).collect(Collectors.toList());
     }
@@ -105,6 +132,7 @@ public class BookService {
      * @param bookDTO bookDTO
      * @return bookDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public BookDTO insert(BookDTO bookDTO) {
         Book book = booksMapper.fromDTO(bookDTO);
 
@@ -127,6 +155,7 @@ public class BookService {
      * @param bookDTO bookDTO
      * @return updated bookDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public BookDTO update(Integer id, BookDTO bookDTO) {
         BookDTO savedBookDTO;
         Book persistedBook = booksJpaRepository.findById(id).orElse(null);
@@ -142,7 +171,7 @@ public class BookService {
 
             savedBookDTO = booksMapper.toDto(booksJpaRepository.save(persistedBook));
         } else {
-            throw new BookstoreException(BOOK_NOT_FOUND);
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found", null, LocaleContextHolder.getLocale()));
         }
         return savedBookDTO;
     }
@@ -153,6 +182,7 @@ public class BookService {
      * @param id id
      * @return 0 when user not removed and 1 if user removed successfully
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
         return booksJpaRepository.removeById(id);
 

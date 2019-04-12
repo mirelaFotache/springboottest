@@ -3,6 +3,9 @@ package com.pentalog.bookstore.controllers;
 import com.pentalog.bookstore.dto.BookingDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.BookingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,26 +19,8 @@ public class BookingController {
 
     @Resource
     private BookingService bookingService;
-
-    /**
-     * Find bookings by title, author and availability
-     *
-     * @param title        title
-     * @param author       author
-     * @param availability availability
-     * @return all found bookings
-     */
-    @RequestMapping(value = "/bookingPreferences", method = RequestMethod.GET)
-    public ResponseEntity<Collection<BookingDTO>> getBookingsByTitleAuthorAvailability(@RequestParam("title") String title,
-                                                                                       @RequestParam("author") String author,
-                                                                                       @RequestParam("availability") boolean availability) {
-        final Collection<BookingDTO> bookings = bookingService.findBookingsByTitleAuthorAvailability(title, author, availability);
-        if (bookings != null && bookings.size() > 0)
-            return new ResponseEntity<>(bookings, HttpStatus.OK);
-        else {
-            throw new BookstoreException("No booking found!");
-        }
-    }
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Get all bookings
@@ -78,8 +63,8 @@ public class BookingController {
     public ResponseEntity<String> deleteBooking(@PathVariable("id") Integer id) {
         final Long deleted = bookingService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("Booking successfully deleted!", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.booking.deleted",null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException("Booking not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.booking.found", null, LocaleContextHolder.getLocale()));
     }
 }

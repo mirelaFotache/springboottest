@@ -6,7 +6,10 @@ import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.persistence.entities.Category;
 import com.pentalog.bookstore.persistence.repositories.CategoryJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -14,13 +17,15 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class CategoryService {
 
     @Resource
     private CategoryJpaRepository categoryJpaRepository;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Find category by name
@@ -44,6 +49,7 @@ public class CategoryService {
      * @param categoryDTO categoryDTO
      * @return inserted category
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public CategoryDTO insert(CategoryDTO categoryDTO) {
         return categoryMapper.toDto(categoryJpaRepository.save(categoryMapper.fromDto(categoryDTO)));
     }
@@ -54,6 +60,7 @@ public class CategoryService {
      * @param categoryDTO categoryDTO
      * @return updated category
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public CategoryDTO update(Integer id, CategoryDTO categoryDTO) {
         Category persistedCategory = categoryJpaRepository.findById(id).orElse(null);
 
@@ -62,7 +69,7 @@ public class CategoryService {
 
             return categoryMapper.toDto(categoryJpaRepository.save(persistedCategory));
         }else{
-            throw new BookstoreException("Category not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.category.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -71,6 +78,7 @@ public class CategoryService {
      * @param id id
      * @return return 0 when user not removed and 1 if user removed successfully
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
         return categoryJpaRepository.removeById(id);
     }

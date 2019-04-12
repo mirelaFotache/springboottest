@@ -8,6 +8,9 @@ import com.pentalog.bookstore.persistence.entities.Role;
 import com.pentalog.bookstore.persistence.entities.User;
 import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +20,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class UserService {
 
+    @Autowired
+    private MessageSource messageSource;
     private UserJpaRepository userJpaRepository;
     private UsersMapper userMapper;
     private RoleJpaRepository roleJpaRepository;
@@ -35,7 +41,6 @@ public class UserService {
      * @param userName user name
      * @return users
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<UserDTO> findByUserName(String userName) {
         return userJpaRepository.findByUserName(userName.toLowerCase()).stream()
                 .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
@@ -48,7 +53,6 @@ public class UserService {
      * @param id id
      * @return user by id
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public UserDTO findById(Integer id) {
         return userMapper.toDTO(userJpaRepository.findById(id)).orElse(null);
     }
@@ -59,7 +63,6 @@ public class UserService {
      *
      * @return all users
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<UserDTO> findAll() {
         return userJpaRepository.findAll().stream()
                 .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
@@ -85,7 +88,7 @@ public class UserService {
 
             return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userOptional.get()))).orElse(null);
         } else {
-            throw new BookstoreException("User not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -116,7 +119,7 @@ public class UserService {
 
             return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(persistedUser))).orElse(null);
         } else {
-            throw new BookstoreException("User not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()));
         }
     }
 

@@ -10,6 +10,8 @@ import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.RatingJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +20,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class RatingService {
 
     @Autowired
@@ -29,6 +31,8 @@ public class RatingService {
     private UserJpaRepository userJpaRepository;
     @Autowired
     private RatingMapper ratingMapper;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Find all ratings per user
@@ -36,7 +40,6 @@ public class RatingService {
      * @param userId userId
      * @return all ratings per user
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<RatingDTO> findRatingsPerUser(Integer userId) {
         return ratingJpaRepository.findUserRatings(userId).stream().map(ratingMapper::toDto).collect(Collectors.toList());
     }
@@ -47,7 +50,6 @@ public class RatingService {
      * @param bookId bookId
      * @return all ratings per book
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<RatingDTO> findRatingsPerBook(Integer bookId) {
         return ratingJpaRepository.findBookRatings(bookId).stream().map(ratingMapper::toDto).collect(Collectors.toList());
     }
@@ -57,7 +59,6 @@ public class RatingService {
      *
      * @return all ratings
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<RatingDTO> findAll() {
         return ratingJpaRepository.findAll().stream().map(ratingMapper::toDto).collect(Collectors.toList());
     }
@@ -68,6 +69,7 @@ public class RatingService {
      * @param ratingDTO ratingDTO
      * @return persisted ratingDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public RatingDTO insert(RatingDTO ratingDTO) {
         RatingDTO persistedRatingDTO;
         if (ratingDTO.getRatingUser() != null && ratingDTO.getRatingBook() != null) {
@@ -84,10 +86,10 @@ public class RatingService {
                 ratingJpaRepository.save(rating);
                 persistedRatingDTO = ratingMapper.toDto(rating);
             } else {
-                throw new BookstoreException("User or book not found!");
+                throw new BookstoreException(messageSource.getMessage("error.user.or.book.not.found", null, LocaleContextHolder.getLocale()));
             }
         } else {
-            throw new BookstoreException("User or book are not found!");
+            throw new BookstoreException(messageSource.getMessage("error.user.or.book.not.found", null, LocaleContextHolder.getLocale()));
         }
 
         return persistedRatingDTO;
@@ -100,6 +102,7 @@ public class RatingService {
      * @param ratingDTO ratingDTO
      * @return updated ratingDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public RatingDTO update(Integer id, RatingDTO ratingDTO) {
         Rating persistedRating = ratingJpaRepository.findById(id).orElse(null);
 
@@ -113,12 +116,12 @@ public class RatingService {
                 Book book = booksJpaRepository.findById(ratingDTO.getRatingBook().getId()).orElse(null);
                 persistedRating.setRatingBook(book);
             } else {
-                throw new BookstoreException("User or book not found!");
+                throw new BookstoreException(messageSource.getMessage("error.user.or.book.not.found", null, LocaleContextHolder.getLocale()));
             }
 
             return ratingMapper.toDto(ratingJpaRepository.save(persistedRating));
         } else {
-            throw new BookstoreException("Rating not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.rating.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -128,6 +131,7 @@ public class RatingService {
      * @param id id
      * @return 0 when rating was not removed and 1 if rating was removed successfully
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
         return ratingJpaRepository.removeById(id);
     }

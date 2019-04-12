@@ -3,6 +3,9 @@ package com.pentalog.bookstore.controllers;
 import com.pentalog.bookstore.dto.RatingDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.RatingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,8 @@ public class RatingController {
 
     @Resource
     private RatingService ratingService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Get all ratings associated with given user
@@ -30,6 +35,7 @@ public class RatingController {
 
     /**
      * Get all ratings associated with given book
+     *
      * @param bookId book id
      * @return ratings for given book
      */
@@ -81,8 +87,8 @@ public class RatingController {
     public ResponseEntity<String> deleteRating(@PathVariable("id") Integer id) {
         final Long deleted = ratingService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("Rating successfully deleted", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.rating.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException("Rating not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.booking.found", null, LocaleContextHolder.getLocale()));
     }
 }

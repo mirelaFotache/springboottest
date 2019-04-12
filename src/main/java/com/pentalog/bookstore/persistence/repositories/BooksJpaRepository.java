@@ -22,4 +22,7 @@ public interface BooksJpaRepository extends CommonRepository<Book, Integer> {
     @Query("SELECT b FROM Book b LEFT JOIN FETCH b.bookCategories as cb ")
     List<Book> findAllBooks();
 
+    @Query("SELECT book FROM Book book where book.title=:title or book.author=:author")
+    Collection<Book> findBooksByTitleOrAuthor(@Param("title") String title, @Param("author") String author);
+
 }

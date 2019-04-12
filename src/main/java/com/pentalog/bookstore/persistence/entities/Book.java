@@ -25,6 +25,9 @@ public class Book {
     private Date publishedDate;
     @Enumerated(EnumType.STRING)
     private BookLocation bookLocation;
+    private int stock;
+    //Stores the number of available books
+    private int stockAvailableBook;
 
     /**
      * Primary key constrain
@@ -146,5 +149,21 @@ public class Book {
 
     public void setBooking(Booking booking) {
         this.booking = booking;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public int getStockAvailableBook() {
+        return stockAvailableBook;
+    }
+
+    public void setStockAvailableBook(int stockAvailableBook) {
+        this.stockAvailableBook = stockAvailableBook;
     }
 }

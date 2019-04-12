@@ -4,6 +4,9 @@ import com.pentalog.bookstore.dto.UserDTO;
 import com.pentalog.bookstore.exception.BookstoreException;
 import com.pentalog.bookstore.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,8 @@ public class UserController {
     @Resource
     private UserService userService;
     //private Logger logger = LoggerFactory.getLogger(UserController.class);
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Find user by user name
@@ -91,10 +96,10 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable("id") Integer id) {
         final Long deleted = userService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>("User successfully deleted!", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.user.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else {
             //throw new BookstoreException("User not found!");
-            return new ResponseEntity<>("User not found!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()), HttpStatus.NOT_FOUND);
         }
     }
 }

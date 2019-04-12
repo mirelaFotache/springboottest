@@ -12,18 +12,23 @@ import com.pentalog.bookstore.persistence.repositories.BookingJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
 import com.pentalog.bookstore.utils.YAMLConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class BookingService {
+
+    @Autowired
+    private MessageSource messageSource;
 
     private BookingJpaRepository bookingJpaRepository;
     private BookingsMapper bookingsMapper;
@@ -32,7 +37,6 @@ public class BookingService {
     private BooksJpaRepository bookJpaRepository;
 
     private YAMLConfig yamlConfig;
-
 
     public BookingService(BookingJpaRepository bookingJpaRepository,
                           BookingsMapper bookingsMapper,
@@ -46,16 +50,13 @@ public class BookingService {
         this.userJpaRepository = userJpaRepository;
         this.bookJpaRepository = bookJpaRepository;
         this.yamlConfig = yamlConfig;
-
     }
-
 
     /**
      * Get all bookings
      *
      * @return bookings
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookingDTO> findAll() {
         return bookingJpaRepository.findAll().stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
     }
@@ -66,26 +67,8 @@ public class BookingService {
      * @param bookId book id
      * @return all bookings for given book
      */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public Collection<BookingDTO> findBookingsByBookId(Integer bookId) {
         return bookingJpaRepository.findBookingsByBookId(bookId).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
-    }
-
-    /**
-     * Find bookings by title, author and availability
-     *
-     * @param title        title
-     * @param author       author
-     * @param availability availability
-     * @return bookings found based on criteria
-     */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    public Collection<BookingDTO> findBookingsByTitleAuthorAvailability(String title, String author, boolean availability) {
-        if(availability){
-            return bookingJpaRepository.findBookingsByTitleAuthorAvailabilityTrue(title, author).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
-        }else{
-            return bookingJpaRepository.findBookingsByTitleAuthorAvailabilityFalse(title, author).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
-        }
     }
 
     /**
@@ -94,33 +77,42 @@ public class BookingService {
      * @param bookingDTO bookingDTO
      * @return persisted bookingDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public BookingDTO insert(BookingDTO bookingDTO) {
         UserDTO userDTO = bookingDTO.getBookingUser();
         BookDTO bookDTO = bookingDTO.getBookingBook();
         Booking booking = bookingsMapper.fromDTO(bookingDTO);
 
-        //Check if user has an reservation on given book
-        Booking lastBooking = getLastBooking(userDTO, bookDTO);
+        findUserAndBookById(userDTO, bookDTO, booking);
 
-        //If lastBooking is null then no booking has been done for that book by the user with given id
-        //If realEndDate is null then the book with given Id has not been returned yet
-        if (lastBooking == null || lastBooking.getRealEndDate() != null) {
-
-            findUserAndBookById(userDTO, bookDTO, booking);
-            // If given user has more than N active bookings(where realEndDate is null) no other booking is allowed
-            if (bookingJpaRepository.findBookingsByUserId(userDTO.getId()) < yamlConfig.getMaxAllowed()) {
-                final Booking savedBooking = bookingJpaRepository.save(booking);
-
-                return bookingsMapper.toDTO(savedBooking);
-            } else {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Booking not allowed. User has at least ");
-                sb.append(yamlConfig.getMaxAllowed());
-                sb.append(" active bookings");
-                throw new BookstoreException(sb.toString());
+        // If given user has more than N active bookings(where realEndDate is null) no other booking is allowed
+        final Collection<Booking> bookingsPerUser = bookingJpaRepository.getActiveBookingsByUserId(userDTO.getId());
+        if (bookingsPerUser.size() < yamlConfig.getMaxAllowed()) {
+            //Persist booking and update stock of available books
+            if (booking.getRealEndDate() == null) {
+                int availableBookStock = booking.getBookingBook().getStockAvailableBook();
+                final int stockAvailableBook = availableBookStock - 1;
+                if (stockAvailableBook < 0) {
+                    throw new BookstoreException(messageSource.getMessage("error.update.stock.not.allowed", null, LocaleContextHolder.getLocale()));
+                }
+                booking.getBookingBook().setStockAvailableBook(stockAvailableBook);
+                int counter = 0;
+                for (Booking activeBooking : bookingsPerUser) {
+                    if (activeBooking.getBookingBook().getId() == booking.getBookingBook().getId()) {
+                        counter++;
+                    }
+                }
+                if (counter > 0) {
+                    throw new BookstoreException(messageSource.getMessage("error.user.has.active.booking", null, LocaleContextHolder.getLocale()));
+                }
             }
+            final Booking savedBooking = bookingJpaRepository.save(booking);
+
+            return bookingsMapper.toDTO(savedBooking);
         } else {
-            throw new BookstoreException("Booking was not saved because another booking is still active for this user...");
+            Object[] params = new Object[1];
+            params[0] = yamlConfig.getMaxAllowed();
+            throw new BookstoreException(messageSource.getMessage("error.booking.not.allowed.user.has.active.bookings",params, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -131,7 +123,8 @@ public class BookingService {
      * @param bookDTO bookDTO
      * @param booking booking
      */
-    public void findUserAndBookById(UserDTO userDTO, BookDTO bookDTO, Booking booking) {
+
+    private void findUserAndBookById(UserDTO userDTO, BookDTO bookDTO, Booking booking) {
         if (userDTO != null && userDTO.getId() > 0) {
             User persistedUser = userJpaRepository.findById(userDTO.getId()).orElse(null);
             booking.setBookingUser(persistedUser);
@@ -141,32 +134,14 @@ public class BookingService {
 
         if (bookDTO != null && bookDTO.getId() > 0) {
             Book persistedBook = bookJpaRepository.findById(bookDTO.getId()).orElse(null);
-            booking.setBookingBook(persistedBook);
+            if (persistedBook != null && persistedBook.getStockAvailableBook() > 0) {
+                booking.setBookingBook(persistedBook);
+            } else {
+                throw new BookstoreException(messageSource.getMessage("error.book.not.available",null, LocaleContextHolder.getLocale()));
+            }
         } else {
-            throw new BookstoreException("Book not found");
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
         }
-    }
-
-    /**
-     * Find last booking for given book and user
-     *
-     * @param userDTO userDTO
-     * @param bookDTO boookDTO
-     * @return booking
-     */
-    private Booking getLastBooking(UserDTO userDTO, BookDTO bookDTO) {
-        String hql = "SELECT b FROM Booking b where b.bookingBook.id=:bookId and b.bookingUser.id=:userId order by b.startDate desc";
-        TypedQuery<Booking> query = em.createQuery(hql, Booking.class);
-        query.setParameter("bookId", bookDTO.getId());
-        query.setParameter("userId", userDTO.getId());
-        query.setMaxResults(1);
-        Booking lastBooking = null;
-        try {
-            lastBooking = query.getSingleResult();
-        } catch (Exception e) {
-            //Do nothing
-        }
-        return lastBooking;
     }
 
     /**
@@ -176,22 +151,73 @@ public class BookingService {
      * @param bookingDTO bookingDTO
      * @return updated bookingDTO
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public BookingDTO update(Integer id, BookingDTO bookingDTO) {
         Booking persistedBooking = bookingJpaRepository.findById(id).orElse(null);
 
         if (persistedBooking != null && bookingDTO != null) {
-            persistedBooking.setStartDate(bookingDTO.getStartDate());
-            persistedBooking.setEstimatedEndDate(bookingDTO.getEstimatedEndDate());
-
+            //Set book
             Book book = bookJpaRepository.getOne(bookingDTO.getBookingBook().getId());
+            setStockAvailableBook(bookingDTO, persistedBooking, book);
             persistedBooking.setBookingBook(book);
+
+            //Set user
             User user = userJpaRepository.findById(bookingDTO.getBookingUser().getId()).orElse(null);
             persistedBooking.setBookingUser(user);
 
+            //Update realEndDate only after calculating stockAvailableBook value!
+            setBookingParameters(bookingDTO, persistedBooking);
+
+            //Persist booking
             return bookingsMapper.toDTO(bookingJpaRepository.save(persistedBooking));
         } else {
-            throw new BookstoreException("Booking not found");
+            throw new BookstoreException(messageSource.getMessage("error.no.booking.found",null, LocaleContextHolder.getLocale()));
         }
+    }
+
+    /**
+     * Set stockAvailableBook parameter in book
+     *
+     * @param bookingDTO       bookingDTO
+     * @param persistedBooking booking
+     * @param book             book
+     */
+    private void setStockAvailableBook(BookingDTO bookingDTO, Booking persistedBooking, Book book) {
+        boolean increaseBookStock = false;
+        boolean decreaseBookStock = false;
+        if (persistedBooking.getRealEndDate() == null && bookingDTO.getRealEndDate() != null) {
+            increaseBookStock = true;
+        } else if (persistedBooking.getRealEndDate() != null && bookingDTO.getRealEndDate() == null) {
+            decreaseBookStock = true;
+        }
+
+        int stockAvailableBook = book.getStockAvailableBook();
+
+        if (increaseBookStock) {
+            stockAvailableBook = book.getStockAvailableBook() + 1;
+            if (stockAvailableBook > yamlConfig.getMaxAllowed()) {
+                throw new BookstoreException(messageSource.getMessage("error.update.stock.not.allowed", null, LocaleContextHolder.getLocale()));
+            }
+
+        } else if (decreaseBookStock) {
+            stockAvailableBook = book.getStockAvailableBook() - 1;
+            if (stockAvailableBook < 0) {
+                throw new BookstoreException(messageSource.getMessage("error.update.stock.not.allowed", null, LocaleContextHolder.getLocale()));
+            }
+        }
+        book.setStockAvailableBook(stockAvailableBook);
+    }
+
+    /**
+     * Set startDate, estimatedEndDate and realEndDate parameters
+     *
+     * @param bookingDTO       bookingDTO
+     * @param persistedBooking booking
+     */
+    private void setBookingParameters(BookingDTO bookingDTO, Booking persistedBooking) {
+        persistedBooking.setStartDate(bookingDTO.getStartDate());
+        persistedBooking.setEstimatedEndDate(bookingDTO.getEstimatedEndDate());
+        persistedBooking.setRealEndDate(bookingDTO.getRealEndDate());
     }
 
     /**
@@ -200,7 +226,18 @@ public class BookingService {
      * @param id id
      * @return 0 if booking not removed and 1 if booking removed successfully
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long delete(Integer id) {
+        Booking persistedBooking = bookingJpaRepository.findById(id).orElse(null);
+        if (persistedBooking != null) {
+            Book book = bookJpaRepository.getOne(persistedBooking.getBookingBook().getId());
+            final int stockAvailableBook = book.getStockAvailableBook() + 1;
+            if (stockAvailableBook > yamlConfig.getMaxAllowed()) {
+                throw new BookstoreException(messageSource.getMessage("error.update.stock.not.allowed", null, LocaleContextHolder.getLocale()));
+            }
+            book.setStockAvailableBook(stockAvailableBook);
+            bookJpaRepository.save(book);
+        }
         return bookingJpaRepository.removeById(id);
     }
 
