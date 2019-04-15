@@ -38,7 +38,7 @@ public class UserController {
         if (users != null && users.size()>0)
             return new ResponseEntity<>(users, HttpStatus.OK);
         else {
-            throw new BookstoreException("User not found!");
+            throw new BookstoreException(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()));
         }
     }
 

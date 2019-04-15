@@ -1,8 +1,10 @@
 package com.pentalog.bookstore.dto;
 
-import org.springframework.stereotype.Component;
-import com.pentalog.bookstore.persistence.entities.User;
 import com.pentalog.bookstore.persistence.entities.Role;
+import com.pentalog.bookstore.persistence.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.Optional;
 public class UsersMapper {
     private Optional<UserDTO> userDtoOpt;
     private Optional<User> userOpt;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Convert userDTO to user
@@ -25,6 +29,7 @@ public class UsersMapper {
             User user = new User();
             user.setId(userDTO.getId());
             user.setUserName(userDTO.getUserName());
+            //user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             user.setPassword(userDTO.getPassword());
             user.setCity(userDTO.getCity());
             user.setAddress(userDTO.getAddress());
@@ -83,4 +88,5 @@ public class UsersMapper {
 
         return userDtoOpt;
     }
+
 }

@@ -29,6 +29,7 @@ public class UserService {
     private UsersMapper userMapper;
     private RoleJpaRepository roleJpaRepository;
 
+
     public UserService(UserJpaRepository userJpaRepository, UsersMapper userMapper, RoleJpaRepository roleJpaRepository) {
         this.userJpaRepository = userJpaRepository;
         this.userMapper = userMapper;
@@ -43,6 +44,13 @@ public class UserService {
      */
     public Collection<UserDTO> findByUserName(String userName) {
         return userJpaRepository.findByUserName(userName.toLowerCase()).stream()
+                .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
+                .collect(Collectors.toList());
+    }
+
+
+    public Collection<UserDTO> findByUserNameAndPassword(String userName, String password) {
+        return userJpaRepository.findByUserNameAndPass(userName, password).stream()
                 .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
                 .collect(Collectors.toList());
     }
