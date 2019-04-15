@@ -42,17 +42,13 @@ public class UserService {
      * @param userName user name
      * @return users
      */
-    public Collection<UserDTO> findByUserName(String userName) {
-        return userJpaRepository.findByUserName(userName.toLowerCase()).stream()
-                .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
-                .collect(Collectors.toList());
+    public UserDTO findByUserName(String userName) {
+        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.findByUserName(userName.toLowerCase()))).get();
     }
 
 
-    public Collection<UserDTO> findByUserNameAndPassword(String userName, String password) {
-        return userJpaRepository.findByUserNameAndPass(userName, password).stream()
-                .map(user -> userMapper.toDTO(Optional.ofNullable(user)).orElse(null))
-                .collect(Collectors.toList());
+    public UserDTO findByUserNameAndPassword(String userName, String password) {
+        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.findByUserNameAndPass(userName, password))).get();
     }
 
     /**
@@ -86,15 +82,27 @@ public class UserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserDTO insert(UserDTO userDTO) {
         if (userDTO != null) {
-            final Optional<User> userOptional = userMapper.fromDTO(Optional.of(userDTO));
-            userOptional.ifPresent(user -> user.getUserRoles().clear());
+            //Check if user with given userName already exists in the database
+            User persistedUser = userJpaRepository.findByUserName(userDTO.getUserName());
+            if (persistedUser == null) {
 
-            for (RoleDTO rDTO : userDTO.getUserRoles()) {
-                Role role = roleJpaRepository.findById(rDTO.getId()).orElse(null);
-                userOptional.ifPresent(user -> user.getUserRoles().add(role));
+                final Optional<User> userOptional = userMapper.fromDTO(Optional.of(userDTO));
+                userOptional.ifPresent(user -> {
+                    if (user.getUserRoles() != null)
+                        user.getUserRoles().clear();
+                });
+
+                if (userDTO.getUserRoles() != null) {
+                    for (RoleDTO rDTO : userDTO.getUserRoles()) {
+                        Role role = roleJpaRepository.findById(rDTO.getId()).orElse(null);
+                        userOptional.ifPresent(user -> user.getUserRoles().add(role));
+                    }
+                }
+
+                return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userOptional.get()))).orElse(null);
+            } else {
+                throw new BookstoreException(messageSource.getMessage("error.user.already.exists", null, LocaleContextHolder.getLocale()));
             }
-
-            return userMapper.toDTO(Optional.ofNullable(userJpaRepository.save(userOptional.get()))).orElse(null);
         } else {
             throw new BookstoreException(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()));
         }
@@ -149,5 +157,13 @@ public class UserService {
 
     public RoleJpaRepository getRoleJpaRepository() {
         return roleJpaRepository;
+    }
+
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 }

@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collection;
-
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class UserJpaRepositoryTest {
@@ -22,17 +20,17 @@ public class UserJpaRepositoryTest {
     public void testFindByUserNameUserFound() {
         User user = UserSupplier.supplyUserWithUserNameAndId();
         userRepo.save(user);
-        Collection<User> users = userRepo.findByUserName("mira");
-        Assert.assertEquals(1,users.size());
+        User persistedUser = userRepo.findByUserName("mira");
+        Assert.assertNotNull(persistedUser);
     }
 
     @Test
     public void testFindByUserNameUserNotFound() {
         User user = UserSupplier.supplyUserWithUserNameAndId();
         userRepo.save(user);
-        Collection<User> users = userRepo.findByUserName("");
+        User persistedUser = userRepo.findByUserName("");
 
-        Assert.assertEquals(users.size(),0);
+        Assert.assertNotNull(persistedUser);
     }
 
     @Test

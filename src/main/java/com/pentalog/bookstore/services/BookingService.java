@@ -112,7 +112,7 @@ public class BookingService {
         } else {
             Object[] params = new Object[1];
             params[0] = yamlConfig.getMaxAllowed();
-            throw new BookstoreException(messageSource.getMessage("error.booking.not.allowed.user.has.active.bookings",params, LocaleContextHolder.getLocale()));
+            throw new BookstoreException(messageSource.getMessage("error.booking.not.allowed.user.has.active.bookings", params, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -137,10 +137,10 @@ public class BookingService {
             if (persistedBook != null && persistedBook.getStockAvailableBook() > 0) {
                 booking.setBookingBook(persistedBook);
             } else {
-                throw new BookstoreException(messageSource.getMessage("error.book.not.available",null, LocaleContextHolder.getLocale()));
+                throw new BookstoreException(messageSource.getMessage("error.book.not.available", null, LocaleContextHolder.getLocale()));
             }
         } else {
-            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -171,7 +171,7 @@ public class BookingService {
             //Persist booking
             return bookingsMapper.toDTO(bookingJpaRepository.save(persistedBooking));
         } else {
-            throw new BookstoreException(messageSource.getMessage("error.no.booking.found",null, LocaleContextHolder.getLocale()));
+            throw new BookstoreException(messageSource.getMessage("error.no.booking.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -259,5 +259,13 @@ public class BookingService {
 
     public BooksJpaRepository getBookJpaRepository() {
         return bookJpaRepository;
+    }
+
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 }

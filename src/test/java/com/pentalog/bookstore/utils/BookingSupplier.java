@@ -96,6 +96,22 @@ public class BookingSupplier {
         bookingDTO.setEstimatedEndDate(estimatedEndDate);
         bookingDTO.setRealEndDate(estimatedEndDate);
     }
+    /**
+     * Supply booking for insert
+     *
+     * @return booking
+     */
+    public static Booking supplyBookingForInsertNoAvailableStock() {
+        Booking booking = new Booking();
+        setBookingParameters(booking);
+        Book book = new Book();
+        book.setId(3);
+        booking.setBookingBook(book);
+        User user = new User();
+        user.setId(1);
+        booking.setBookingUser(user);
+        return booking;
+    }
 
     /**
      * Supply booking for insert
@@ -126,6 +142,17 @@ public class BookingSupplier {
      * @return bookingDTO
      */
     public static BookingDTO supplyBookingDTOForInsertAllowed() {
+        BookingDTO bookingDTO = new BookingDTO();
+        setBookingDTOParameters(bookingDTO);
+        BookDTO bookDTO = new BookDTO();
+        bookDTO.setId(3);
+        bookingDTO.setBookingBook(bookDTO);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1);
+        bookingDTO.setBookingUser(userDTO);
+        return bookingDTO;
+    }
+    public static BookingDTO supplyBookingDTOForInsertNoAvailableStock() {
         BookingDTO bookingDTO = new BookingDTO();
         setBookingDTOParameters(bookingDTO);
         BookDTO bookDTO = new BookDTO();

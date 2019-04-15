@@ -9,18 +9,22 @@ import com.pentalog.bookstore.persistence.repositories.RoleJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
 import com.pentalog.bookstore.utils.RoleSupplier;
 import com.pentalog.bookstore.utils.UserSupplier;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(UserJpaRepository.class)
@@ -35,14 +39,13 @@ public class UserServiceTest {
     public void testFindByUserNameFound() {
         final User suppliedUser = UserSupplier.supplyUserWithUserNameAndId();
         users.add(suppliedUser);
-        Mockito.doReturn(users).when(userJpaRepository).findByUserName("mira");
+        Mockito.doReturn(suppliedUser).when(userJpaRepository).findByUserName("mira");
 
-        Collection<UserDTO> foundUsers = userService.findByUserName("mira");
-        List<UserDTO> users = new ArrayList<>(foundUsers);
+        UserDTO foundUser = userService.findByUserName("mira");
 
-        assertEquals(1,foundUsers.size());
-        assertEquals("mira",users.get(0).getUserName());
-        assertEquals(1,users.get(0).getId());
+
+        assertEquals("mira", foundUser.getUserName());
+        assertEquals(1, foundUser.getId());
     }
 
     @Test
@@ -53,8 +56,8 @@ public class UserServiceTest {
         UserDTO foundUser = userService.findById(1);
 
         assertNotNull(foundUser);
-        assertEquals("mira",foundUser.getUserName());
-        assertEquals(1,foundUser.getId());
+        assertEquals("mira", foundUser.getUserName());
+        assertEquals(1, foundUser.getId());
     }
 
 
@@ -67,21 +70,23 @@ public class UserServiceTest {
         Collection<UserDTO> foundUsers = userService.findAll();
         List<UserDTO> users = new ArrayList<>(foundUsers);
 
-        assertEquals(1,foundUsers.size());
-        assertEquals("mira",users.get(0).getUserName());
-        assertEquals(1,users.get(0).getId());
+        assertEquals(1, foundUsers.size());
+        assertEquals("mira", users.get(0).getUserName());
+        assertEquals(1, users.get(0).getId());
 
     }
 
     @Test
     public void insert() {
-        final User suppliedUser = UserSupplier.supplyUserForInsert().get();
+        User suppliedUser = new User();
+        if (UserSupplier.supplyUserForInsert().isPresent())
+            suppliedUser = UserSupplier.supplyUserForInsert().get();
         final UserDTO suppliedUserDto = UserSupplier.supplyUserDTOForInsert();
 
         Mockito.doReturn(suppliedUser).when(userJpaRepository).save(suppliedUser);
         UserDTO userDTO = userService.insert(suppliedUserDto);
-        assertEquals(1,userDTO.getId());
-        assertEquals("mira",userDTO.getUserName());
+        assertEquals(1, userDTO.getId());
+        assertEquals("mira", userDTO.getUserName());
     }
 
     @Test
@@ -92,15 +97,18 @@ public class UserServiceTest {
         Mockito.doReturn(Optional.of(suppliedUser)).when(userJpaRepository).findById(1);
         Mockito.doReturn(Optional.of(suppliedRole)).when(roleJpaRepository).findById(1);
         Mockito.doReturn(suppliedUser).when(userJpaRepository).save(suppliedUser);
-        UserDTO userDTO = userService.update(suppliedUserDto.getId(),suppliedUserDto);
-        assertEquals(1,userDTO.getId());
-        assertEquals("mira",userDTO.getUserName());
+        UserDTO userDTO = userService.update(suppliedUserDto.getId(), suppliedUserDto);
+        assertEquals(1, userDTO.getId());
+        assertEquals("mira", userDTO.getUserName());
     }
+
     @Test
     public void updateTestUserNotFound() {
-        assertThrows(BookstoreException.class, () -> {
-            userService.update(1, null);
-        });
+        MessageSource messageSource = Mockito.mock(MessageSource.class);
+        userService.setMessageSource(messageSource);
+        Mockito.when(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale())).thenReturn("No user found!");
+        Assert.assertThrows(BookstoreException.class, () ->
+                userService.update(1, null));
     }
 
     @Test
@@ -108,7 +116,7 @@ public class UserServiceTest {
         Long removedId = 1L;
         Mockito.doReturn(removedId).when(userJpaRepository).removeById(1);
         Long result = userService.delete(1);
-        assertEquals(1,result.intValue());
+        assertEquals(1, result.intValue());
     }
 
 }

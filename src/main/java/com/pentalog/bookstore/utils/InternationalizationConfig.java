@@ -30,7 +30,7 @@ public class InternationalizationConfig extends WebMvcConfigurerAdapter {
     @Bean
     public LocaleResolver localeResolver() {
         CookieLocaleResolver lr = new CookieLocaleResolver();
-        if (frenchLanguage.equals("fr_FR"))
+        if (("fr_FR").equals(frenchLanguage))
             lr.setDefaultLocale(Locale.FRANCE);
         else {
             lr.setDefaultLocale(Locale.US);

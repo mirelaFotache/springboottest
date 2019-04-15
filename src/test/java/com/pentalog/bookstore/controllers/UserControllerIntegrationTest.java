@@ -31,16 +31,9 @@ public class UserControllerIntegrationTest {
     @LocalServerPort
     private int port;
 
-   /* @Before
-    public void init() {
-        User user = UserSupplier.supplyUserForInsert();
-        responseEntity =
-                restTemplate.postForEntity("http://localhost:" + port + "/bookstore/users/", user, User.class);
-    }*/
-
     @Test
     public void bFindByUserName(){
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(
+        ResponseEntity<String> responseEntity = restTemplate.withBasicAuth("admin", "admin").getForEntity(
                 "http://localhost:8888/bookstore/users/name?searchBy={name}", String.class,"mira");
 
         Assert.assertEquals(HttpStatus.OK.value(),responseEntity.getStatusCodeValue());
@@ -48,7 +41,7 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void cFindByUserNameNotFound() {
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(
+        ResponseEntity<String> responseEntity = restTemplate.withBasicAuth("admin", "admin").getForEntity(
                 "http://localhost:8888/bookstore/users/name?searchBy={name}", String.class,"aaa");
 
         Assert.assertEquals(HttpStatus.NOT_FOUND.value(),responseEntity.getStatusCodeValue());
@@ -56,7 +49,7 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void dGetUser() {
-        ResponseEntity<User> responseEntity = restTemplate.getForEntity(
+        ResponseEntity<User> responseEntity = restTemplate.withBasicAuth("admin", "admin").getForEntity(
                 "http://localhost:8888/bookstore/users/{id}", User.class,"1");
 
         User user = responseEntity.getBody();
@@ -68,7 +61,7 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void eGetAllUsers() {
-        final ResponseEntity<List<User>> responseEntity = restTemplate.exchange(
+        final ResponseEntity<List<User>> responseEntity = restTemplate.withBasicAuth("admin", "admin").exchange(
                 "http://localhost:8888/bookstore/users/",
                 HttpMethod.GET,
                 null,
@@ -84,7 +77,7 @@ public class UserControllerIntegrationTest {
     public void aInsertUser() {
         User userToBePersisted = UserSupplier.supplyUserForInsert().get();
         ResponseEntity<User> responseEntity =
-                restTemplate.postForEntity("http://localhost:" + port + "/bookstore/users/", userToBePersisted, User.class);
+                restTemplate.withBasicAuth("admin", "admin").postForEntity("http://localhost:" + port + "/bookstore/users/", userToBePersisted, User.class);
         User user = responseEntity.getBody();
 
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -99,7 +92,7 @@ public class UserControllerIntegrationTest {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<User> requestEntity = new HttpEntity<>(userToBePersisted, requestHeaders);
         ResponseEntity<User> responseEntity =
-                restTemplate.exchange("http://localhost:" + port + "/bookstore/users/1", HttpMethod.PUT, requestEntity, User.class);
+                restTemplate.withBasicAuth("admin", "admin").exchange("http://localhost:" + port + "/bookstore/users/1", HttpMethod.PUT, requestEntity, User.class);
         User user = responseEntity.getBody();
 
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -114,7 +107,7 @@ public class UserControllerIntegrationTest {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<User> requestEntity = new HttpEntity<>(userToBePersisted, requestHeaders);
         ResponseEntity<User> responseEntity =
-                restTemplate.exchange("http://localhost:" + port + "/bookstore/users/1", HttpMethod.DELETE, requestEntity, User.class);
+                restTemplate.withBasicAuth("admin", "admin").exchange("http://localhost:" + port + "/bookstore/users/1", HttpMethod.DELETE, requestEntity, User.class);
 
         Assert.assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
@@ -126,10 +119,10 @@ public class UserControllerIntegrationTest {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<User> requestEntity = new HttpEntity<>(userToBePersisted, requestHeaders);
         ResponseEntity<String> responseEntity =
-                restTemplate.exchange("http://localhost:" + port + "/bookstore/users/2", HttpMethod.DELETE, requestEntity, String.class);
+                restTemplate.withBasicAuth("admin", "admin").exchange("http://localhost:" + port + "/bookstore/users/2", HttpMethod.DELETE, requestEntity, String.class);
         String s = responseEntity.getBody();
         Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        Assert.assertEquals("User not found!", s);
+        Assert.assertEquals("No user found!", s);
     }
 
 }

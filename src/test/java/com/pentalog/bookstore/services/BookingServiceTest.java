@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -47,6 +49,9 @@ public class BookingServiceTest {
     public void insertNotAllowed() {
         final Booking suppliedBooking = BookingSupplier.supplyBookingForInsertNotAllowed();
         final BookingDTO suppliedBookingDto = BookingSupplier.supplyBookingDTOForInsertNotAllowed();
+        MessageSource messageSource = Mockito.mock(MessageSource.class);
+        bookingService.setMessageSource(messageSource);
+        Mockito.when(messageSource.getMessage("error.book.not.available", null, LocaleContextHolder.getLocale())).thenReturn("No user found!");
 
         testBookingNotAllowed(suppliedBooking, suppliedBookingDto);
     }
@@ -68,9 +73,9 @@ public class BookingServiceTest {
     }
 
     @Test
-    public void insertAllowed() {
-        final Booking suppliedBooking = BookingSupplier.supplyBookingForInsertAllowed();
-        final BookingDTO suppliedBookingDto = BookingSupplier.supplyBookingDTOForInsertAllowed();
+    public void insertNotAllowedStockInvalid() {
+        final Booking suppliedBooking = BookingSupplier.supplyBookingForInsertNoAvailableStock();
+        final BookingDTO suppliedBookingDto = BookingSupplier.supplyBookingDTOForInsertNoAvailableStock();
 
         mockBookingJpaAndMapper(suppliedBooking, suppliedBookingDto);
         Mockito.doReturn(suppliedBookingDto).when(bookingsMapper).toDTO(suppliedBooking);
@@ -82,13 +87,17 @@ public class BookingServiceTest {
         Mockito.doReturn(UserSupplier.supplyUserForInsert()).when(userJpaRepository).findById(suppliedBooking.getBookingUser().getId());
         Mockito.doReturn(BookingSupplier.supplyBookForInsert()).when(bookJpaRepository).findById(suppliedBooking.getBookingBook().getId());
 
-        BookingDTO bookingDTO = getInsert(suppliedBookingDto);
-        Assert.assertNotNull(bookingDTO);
-        Assert.assertTrue(bookingDTO.getId() > 0);
+        MessageSource messageSource = Mockito.mock(MessageSource.class);
+        bookingService.setMessageSource(messageSource);
+        Mockito.when(messageSource.getMessage("error.book.not.available", null, LocaleContextHolder.getLocale())).thenReturn("Book not available!");
+
+        Assert.assertThrows(BookstoreException.class, () ->
+                getInsert(suppliedBookingDto)
+        );
     }
 
     @Test
-    public void inserNotAllowedNoBookingFound() {
+    public void insertNotAllowedBookNotAvailable() {
         final Booking suppliedBooking = BookingSupplier.supplyBookingForInsertAllowed();
         final BookingDTO suppliedBookingDto = BookingSupplier.supplyBookingDTOForInsertAllowed();
 
@@ -98,10 +107,13 @@ public class BookingServiceTest {
 
         Mockito.doReturn(mockedQuery).when(em).createQuery(HQL_SELECT_BOOKING, Booking.class);
         Mockito.when(mockedQuery.getSingleResult()).thenThrow(NoResultException.class);
+        MessageSource messageSource = Mockito.mock(MessageSource.class);
+        bookingService.setMessageSource(messageSource);
+        Mockito.when(messageSource.getMessage("error.book.not.available", null, LocaleContextHolder.getLocale())).thenReturn("Book not available!");
 
-
-        BookingDTO bookingDTO = getInsert(suppliedBookingDto);
-        Assert.assertNotNull(bookingDTO);
+        Assert.assertThrows(BookstoreException.class, () ->
+                getInsert(suppliedBookingDto)
+        );
     }
 
     //@Test
@@ -136,6 +148,9 @@ public class BookingServiceTest {
         Mockito.doReturn(mockedQuery).when(em).createQuery(HQL_SELECT_BOOKING, Booking.class);
         Mockito.when(mockedQuery.getSingleResult()).thenReturn(suppliedBooking);
 
+        MessageSource messageSource = Mockito.mock(MessageSource.class);
+        bookingService.setMessageSource(messageSource);
+        Mockito.when(messageSource.getMessage("error.no.book.found", null, LocaleContextHolder.getLocale())).thenReturn("No book found!");
 
         Assert.assertThrows(BookstoreException.class, () ->
                 getInsert(suppliedBookingDto)

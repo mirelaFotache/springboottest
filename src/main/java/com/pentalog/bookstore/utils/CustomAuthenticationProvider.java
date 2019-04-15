@@ -14,7 +14,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -29,9 +28,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         // Use the credentials and authenticate against the third-party system
-        Collection<UserDTO> users = userService.findByUserNameAndPassword(name, password);
-        if (users != null && users.size() > 0) {
-            UserDTO user = users.iterator().next();
+        UserDTO user = userService.findByUserNameAndPassword(name, password);
+        if (user != null) {
             if (user.getUserName().equals(name) && user.getPassword().equals(password)) {
 
                 List<GrantedAuthority> persistedRoles = new ArrayList<>();

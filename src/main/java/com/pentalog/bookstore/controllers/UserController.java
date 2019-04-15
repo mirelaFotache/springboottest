@@ -33,10 +33,10 @@ public class UserController {
      * @return users
      */
     @RequestMapping(value = "/name", method = RequestMethod.GET)
-    public ResponseEntity<Collection<UserDTO>> findByUserName(@RequestParam("searchBy") String userName) {
-        final Collection<UserDTO> users = userService.findByUserName(userName);
-        if (users != null && users.size()>0)
-            return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<UserDTO> findByUserName(@RequestParam("searchBy") String userName) {
+        final UserDTO user = userService.findByUserName(userName);
+        if (user != null )
+            return new ResponseEntity<>(user, HttpStatus.OK);
         else {
             throw new BookstoreException(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()));
         }
