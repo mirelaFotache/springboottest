@@ -2,7 +2,7 @@ BOOKSTORE
 
 OVERVIEW
 
-Bookstore is a web application having as main goal the management of Pentalog internal library. 
+Bookstore is a web application having as main goal the management of book library. 
 Application offers a list of all the available books in the library, with the possibility of reserving them for a period of time.
 Authorized users can reserve books, add ratings and comments about the reserved books and view ratings or comments other users have already given for the books they have read.
 If they don't return the books in time, they are notified periodically about about the delay.
@@ -25,15 +25,9 @@ The application relay on a postgres database containing the following tables:
 - rating - offers the possibility to the users to give a feedback about the book they have read. Table stores the id of the user and the 
     id of the reserved book, a comment added by the user about how useful that book was, and a rating (a note that user give to the book) 
 
-Database parameters defined in application-dev.yml are:
-    spring.datasource.url: jdbc:postgresql://localhost:5432/bookstore
-    spring.datasource.username: postgres
-    spring.datasource.password: admin
+Database parameters defined in application-dev.yml
 
-Junit tests use an in memory H2 database. Specific parameters are stored in resources/application.properties file:
-    spring.datasource.url=jdbc:h2:file:~/dasbootTestMarina
-    spring.datasource.username=sa
-    spring.datasource.password= 
+Junit tests use an in memory H2 database. Specific parameters are stored in resources/application.properties 
 For tests only, embedded Tomcat use a different port defined in the same file: server.port=8888
  
 In order for the users to be able to use the application they must login. The session is active for a defined period of time and then it expires.
