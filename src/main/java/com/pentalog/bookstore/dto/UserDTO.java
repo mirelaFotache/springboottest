@@ -16,6 +16,7 @@ public class UserDTO {
     private String address;
     private String phoneNumber;
     private String city;
+    private boolean active;
 
     private List<RoleDTO> userRoles;
 
@@ -99,5 +100,13 @@ public class UserDTO {
 
     public void setUserRoles(List<RoleDTO> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

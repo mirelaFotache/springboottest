@@ -8,9 +8,12 @@ import java.util.Collection;
 
 public interface RatingJpaRepository extends CommonRepository<Rating, Integer> {
 
-    @Query("SELECT r FROM Rating r  where r.ratingUser.id=:id")
+    @Query("SELECT r FROM Rating r where r.ratingUser.id=:id")
     Collection<Rating> findUserRatings(@Param("id") Integer id);
 
-    @Query("SELECT r FROM Rating r LEFT JOIN Book b on r.ratingBook.id=b.id  where r.ratingBook.id=:id")
+    @Query("SELECT r FROM Rating r LEFT JOIN Book b on r.ratingBook.id=b.id where r.ratingBook.id=:id")
     Collection<Rating> findBookRatings(@Param("id") Integer id);
+
+    @Query("SELECT r FROM Rating r LEFT JOIN Book b on r.ratingBook.id=b.id where r.ratingUser.id=:userId and r.ratingBook.id=:bookId")
+    Collection<Rating> findRatingsPerUserAndBook(@Param("userId") Integer userId, @Param("bookId") Integer bookId);
 }

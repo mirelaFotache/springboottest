@@ -12,8 +12,7 @@ import java.util.Optional;
 
 @Component
 public class UsersMapper {
-    private Optional<UserDTO> userDtoOpt;
-    private Optional<User> userOpt;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -25,7 +24,8 @@ public class UsersMapper {
      */
     public Optional<User> fromDTO(Optional<UserDTO> userDTOOptional) {
 
-        userDTOOptional.ifPresent(userDTO -> {
+        UserDTO userDTO = userDTOOptional.orElse(null);
+        if (userDTO != null) {
             User user = new User();
             user.setId(userDTO.getId());
             user.setUserName(userDTO.getUserName());
@@ -37,6 +37,7 @@ public class UsersMapper {
             user.setFirstName(userDTO.getFirstName());
             user.setLastName(userDTO.getLastName());
             user.setPhoneNumber(userDTO.getPhoneNumber());
+            user.setActive(userDTO.isActive());
             if (userDTO.getUserRoles() != null) {
                 List<Role> roles = new ArrayList<>();
                 for (RoleDTO roleDTO : userDTO.getUserRoles()) {
@@ -47,9 +48,9 @@ public class UsersMapper {
                 }
                 user.setUserRoles(roles);
             }
-            userOpt = Optional.of(user);
-        });
-        return userOpt;
+            return Optional.of(user);
+        } else
+            return Optional.empty();
     }
 
     /**
@@ -59,8 +60,8 @@ public class UsersMapper {
      * @return optional
      */
     public Optional<UserDTO> toDTO(Optional<User> userOptional) {
-
-        userOptional.ifPresent(user -> {
+        User user = userOptional.orElse(null);
+        if (user != null) {
             UserDTO userDTO = new UserDTO();
             userDTO.setId(user.getId());
             userDTO.setUserName(user.getUserName());
@@ -71,6 +72,7 @@ public class UsersMapper {
             userDTO.setFirstName(user.getFirstName());
             userDTO.setLastName(user.getLastName());
             userDTO.setPhoneNumber(user.getPhoneNumber());
+            userDTO.setActive(user.isActive());
             if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
                 List<RoleDTO> roles = new ArrayList<>();
                 for (Role role : user.getUserRoles()) {
@@ -83,10 +85,11 @@ public class UsersMapper {
                 }
                 userDTO.setUserRoles(roles);
             }
-            userDtoOpt = Optional.of(userDTO);
-        });
+            return Optional.of(userDTO);
+        } else {
+            return Optional.empty();
+        }
 
-        return userDtoOpt;
     }
 
 }

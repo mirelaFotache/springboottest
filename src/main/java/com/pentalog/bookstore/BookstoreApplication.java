@@ -1,7 +1,7 @@
 package com.pentalog.bookstore;
 
-import com.pentalog.bookstore.utils.InternationalizationConfig;
-import com.pentalog.bookstore.utils.YAMLConfig;
+import com.pentalog.bookstore.config.InternationalizationConfig;
+import com.pentalog.bookstore.config.YAMLConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

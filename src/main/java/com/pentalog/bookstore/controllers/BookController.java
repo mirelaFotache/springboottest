@@ -27,7 +27,17 @@ public class BookController {
     private MessageSource messageSource;
 
     /**
-     * Find bookings by title, author and availability
+     * Return all books
+     *
+     * @return books
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<Collection<BookDTO>> getAllBooks() {
+        return new ResponseEntity<>(bookService.findAll(), HttpStatus.OK);
+    }
+
+    /**
+     * Find books by title, author and availability
      *
      * @param title        title
      * @param author       author
@@ -42,7 +52,7 @@ public class BookController {
         if (availableBooksByTitleAndAuthor != null && availableBooksByTitleAndAuthor.size() > 0)
             return new ResponseEntity<>(availableBooksByTitleAndAuthor, HttpStatus.OK);
         else {
-            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -52,7 +62,7 @@ public class BookController {
      * @param bookId book id
      * @return categories where boo kis registered
      */
-    @RequestMapping(value = "/{book_id}/categories/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{book_id}/categories", method = RequestMethod.GET)
     public ResponseEntity<Collection<CategoryDTO>> getBookCategories(@PathVariable("book_id") Integer bookId) {
         return new ResponseEntity<>(bookService.findCategoriesByBookId(bookId), HttpStatus.OK);
     }
@@ -63,7 +73,7 @@ public class BookController {
      * @param bookId book id
      * @return all bookings for given book
      */
-    @RequestMapping(value = "/{book_id}/bookings/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{book_id}/bookings", method = RequestMethod.GET)
     public ResponseEntity<Collection<BookingDTO>> getBookingsByBook(@PathVariable("book_id") Integer bookId) {
         return new ResponseEntity<>(bookingService.findBookingsByBookId(bookId), HttpStatus.OK);
     }
@@ -102,7 +112,7 @@ public class BookController {
     }
 
     /**
-     * Find all books
+     * Find all books. For each book display the most recent booking if any was found and the user who reserved the book
      *
      * @return books
      */
@@ -117,7 +127,7 @@ public class BookController {
      * @param bookDTO book
      * @return inserted book
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<BookDTO> insertBook(@RequestBody BookDTO bookDTO) {
         final BookDTO insertedBook = bookService.insert(bookDTO);
         return new ResponseEntity<>(insertedBook, HttpStatus.OK);
@@ -145,8 +155,8 @@ public class BookController {
     public ResponseEntity<String> deleteBook(@PathVariable("id") Integer id) {
         final Long deleted = bookService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>(messageSource.getMessage("message.book.deleted",null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.book.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
-            throw new BookstoreException(messageSource.getMessage("error.no.book.found",null, LocaleContextHolder.getLocale()));
+            throw new BookstoreException(messageSource.getMessage("error.no.book.found", null, LocaleContextHolder.getLocale()));
     }
 }

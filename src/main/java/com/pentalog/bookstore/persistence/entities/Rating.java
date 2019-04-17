@@ -20,11 +20,11 @@ public class Rating {
      * Primary key constrain
      */
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "FK_RATING_BOOK"), referencedColumnName = "id")
     private Book ratingBook;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_RATING_USER"), referencedColumnName = "id")
     private User ratingUser;
 

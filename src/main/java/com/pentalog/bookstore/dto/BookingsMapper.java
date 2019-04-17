@@ -50,7 +50,7 @@ public class BookingsMapper {
         }
         User user = booking.getBookingUser();
         if (user != null) {
-            bookingDTO.setBookingUser(userMapper.toDTO(Optional.ofNullable(user)).get());
+            bookingDTO.setBookingUser(userMapper.toDTO(Optional.of(user)).get());
         }
         return bookingDTO;
     }

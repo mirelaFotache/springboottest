@@ -27,9 +27,25 @@ public class BookingController {
      *
      * @return bookings
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Collection<BookingDTO>> getAllBookings() {
         return new ResponseEntity<>(bookingService.findAll(), HttpStatus.OK);
+    }
+
+    /**
+     * Display all books that one user has not returned yet. Active bookings have realEndDate null as long as the reserved book has not been returned
+     *
+     * @param userId user id
+     * @return all active bookings per user
+     */
+    @RequestMapping(value = "/activeBookingsPerUser", method = RequestMethod.GET)
+    public ResponseEntity<Collection<BookingDTO>> findActiveBookingsByUser(@RequestParam("userId") int userId) {
+        final Collection<BookingDTO> activeBookingsByUserId = bookingService.findActiveBookingsByUserId(userId);
+        if(activeBookingsByUserId!=null && activeBookingsByUserId.size()>0) {
+            return new ResponseEntity<>(activeBookingsByUserId, HttpStatus.OK);
+        }else{
+            throw new BookstoreException(messageSource.getMessage("error.no.booking.found", null, LocaleContextHolder.getLocale()));
+        }
     }
 
     /**
@@ -38,7 +54,7 @@ public class BookingController {
      * @param bookingDTO booking
      * @return persisted booking
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<BookingDTO> insertBooking(@RequestBody BookingDTO bookingDTO) {
         return new ResponseEntity<>(bookingService.insert(bookingDTO), HttpStatus.OK);
     }
@@ -63,7 +79,7 @@ public class BookingController {
     public ResponseEntity<String> deleteBooking(@PathVariable("id") Integer id) {
         final Long deleted = bookingService.delete(id);
         if (deleted != null && deleted.intValue() == 1)
-            return new ResponseEntity<>(messageSource.getMessage("message.booking.deleted",null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(messageSource.getMessage("message.booking.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else
             throw new BookstoreException(messageSource.getMessage("error.no.booking.found", null, LocaleContextHolder.getLocale()));
     }

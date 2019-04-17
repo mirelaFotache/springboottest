@@ -58,7 +58,7 @@ public class UserController {
      *
      * @return user list
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Collection<UserDTO>> getAllUsers() {
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
@@ -69,7 +69,7 @@ public class UserController {
      * @param userDTO user
      * @return persisted user
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<UserDTO> insertUser(@RequestBody UserDTO userDTO) {
         return new ResponseEntity<>(userService.insert(userDTO), HttpStatus.OK);
 
@@ -98,7 +98,6 @@ public class UserController {
         if (deleted != null && deleted.intValue() == 1)
             return new ResponseEntity<>(messageSource.getMessage("message.user.deleted", null, LocaleContextHolder.getLocale()), HttpStatus.NO_CONTENT);
         else {
-            //throw new BookstoreException("User not found!");
             return new ResponseEntity<>(messageSource.getMessage("error.no.user.found", null, LocaleContextHolder.getLocale()), HttpStatus.NOT_FOUND);
         }
     }

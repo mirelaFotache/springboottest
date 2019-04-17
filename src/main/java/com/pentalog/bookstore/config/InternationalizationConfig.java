@@ -1,4 +1,4 @@
-package com.pentalog.bookstore.utils;
+package com.pentalog.bookstore.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.MessageSource;
@@ -17,7 +17,7 @@ import java.util.Locale;
 @ConfigurationProperties(prefix = "language")
 public class InternationalizationConfig extends WebMvcConfigurerAdapter {
 
-    private String frenchLanguage;
+    private String selectedLanguage;
 
     @Bean
     public MessageSource messageSource() {
@@ -30,7 +30,7 @@ public class InternationalizationConfig extends WebMvcConfigurerAdapter {
     @Bean
     public LocaleResolver localeResolver() {
         CookieLocaleResolver lr = new CookieLocaleResolver();
-        if (("fr_FR").equals(frenchLanguage))
+        if (("fr_FR").equals(selectedLanguage))
             lr.setDefaultLocale(Locale.FRANCE);
         else {
             lr.setDefaultLocale(Locale.US);
@@ -45,12 +45,11 @@ public class InternationalizationConfig extends WebMvcConfigurerAdapter {
         registry.addInterceptor(interceptor);
     }
 
-    public String getFrenchLanguage() {
-        return frenchLanguage;
+    public String getSelectedLanguage() {
+        return selectedLanguage;
     }
 
-    public void setFrenchLanguage(String frenchLanguage) {
-        this.frenchLanguage = frenchLanguage;
+    public void setSelectedLanguage(String selectedLanguage) {
+        this.selectedLanguage = selectedLanguage;
     }
-
 }

@@ -1,5 +1,6 @@
-package com.pentalog.bookstore.utils;
+package com.pentalog.bookstore.config;
 
+import com.pentalog.bookstore.authentication.CustomAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +26,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/categories/**", "/books/**", "/bookings/**", "/ratings/**,/users/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers(HttpMethod.POST, "/categories/**", "/books/**", "/bookings/**", "/ratings/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/categories/**", "/books/**", "/bookings/**", "/ratings/**").hasAnyRole("ADMIN", "USER")
+
+                .antMatchers(HttpMethod.POST,  "/bookings/**", "/ratings/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.PUT,  "/bookings/**", "/ratings/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.DELETE,  "/bookings/**", "/ratings/**").hasAnyRole("ADMIN","USER")
+
+                .antMatchers(HttpMethod.POST, "/categories/**", "/books/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/categories/**", "/books/**", "/bookings/**", "/ratings/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/categories/**", "/books/**", "/bookings/**", "/ratings/**").hasRole("ADMIN")
+
                 .antMatchers("/users/**", "/roles/**").hasRole("ADMIN")
 
                 .anyRequest().authenticated()

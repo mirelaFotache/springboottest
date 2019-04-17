@@ -1,4 +1,4 @@
-package com.pentalog.bookstore.utils;
+package com.pentalog.bookstore.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

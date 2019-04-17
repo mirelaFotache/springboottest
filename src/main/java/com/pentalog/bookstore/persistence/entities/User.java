@@ -16,18 +16,15 @@ public class User {
     @Id
     @GeneratedValue
     private int id;
-    @Column(name = "user_name")
     private String userName;
     private String password;
-    @Column(name = "first_name")
     private String firstName;
-    @Column(name = "last_name")
     private String lastName;
     private String email;
     private String address;
-    @Column(name = "phone_number")
     private String phoneNumber;
     private String city;
+    private boolean active;
     @Version
     private Integer version;
 
@@ -156,5 +153,13 @@ public class User {
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

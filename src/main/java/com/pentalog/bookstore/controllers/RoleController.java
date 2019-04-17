@@ -33,7 +33,12 @@ public class RoleController {
         return new ResponseEntity<>(roleService.findByRoleName(name), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{user_id}/roles/", method = RequestMethod.GET)
+    /**
+     * Find roles one user have based on user id
+     * @param userId user id
+     * @return roles
+     */
+    @RequestMapping(value = "/{user_id}/roles", method = RequestMethod.GET)
     public ResponseEntity<Collection<RoleDTO>> getUserRoles(@PathVariable("user_id") Integer userId) {
         return new ResponseEntity<>(roleService.findRolesByUserId(userId), HttpStatus.OK);
     }
@@ -44,7 +49,7 @@ public class RoleController {
      *
      * @return all roles
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Collection<RoleDTO>> getAllRoles() {
         return new ResponseEntity<>(roleService.findAll(), HttpStatus.OK);
     }
@@ -55,7 +60,7 @@ public class RoleController {
      * @param roleDTO role
      * @return persisted role
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<RoleDTO> insertRole(@RequestBody RoleDTO roleDTO) {
         return new ResponseEntity<>(roleService.insert(roleDTO), HttpStatus.OK);
     }

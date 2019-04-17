@@ -43,12 +43,27 @@ public class UserService {
      * @return users
      */
     public UserDTO findByUserName(String userName) {
-        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.findByUserName(userName.toLowerCase()))).get();
+        final Optional<User> foundUserName = Optional.ofNullable(userJpaRepository.findByUserName(userName));
+        final Optional<UserDTO> optionalUserDTO = userMapper.toDTO(foundUserName);
+        if (optionalUserDTO.isPresent())
+            return optionalUserDTO.get();
+        else
+            return null;
     }
 
-
+    /**
+     * Find user by user name and password
+     *
+     * @param userName user name
+     * @param password password
+     * @return user
+     */
     public UserDTO findByUserNameAndPassword(String userName, String password) {
-        return userMapper.toDTO(Optional.ofNullable(userJpaRepository.findByUserNameAndPass(userName, password))).get();
+        final Optional<UserDTO> optionalUserDTO = userMapper.toDTO(Optional.ofNullable(userJpaRepository.findByUserNameAndPass(userName, password)));
+        if (optionalUserDTO.isPresent())
+            return optionalUserDTO.get();
+        else
+            return null;
     }
 
     /**

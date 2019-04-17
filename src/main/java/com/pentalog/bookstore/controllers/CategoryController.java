@@ -37,7 +37,7 @@ public class CategoryController {
      * Find categories
      * @return all the categories
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Collection<CategoryDTO>> getAllCategories() {
         return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
@@ -47,7 +47,7 @@ public class CategoryController {
      * @param categoryDTO category
      * @return persisted category
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<CategoryDTO> insertCategory(@RequestBody CategoryDTO categoryDTO) {
         return new ResponseEntity<>(categoryService.insert(categoryDTO), HttpStatus.OK);
     }

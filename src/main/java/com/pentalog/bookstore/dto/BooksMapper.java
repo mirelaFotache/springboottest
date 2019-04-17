@@ -159,6 +159,13 @@ public class BooksMapper {
             bookingDTO.setStartDate(book.getBooking().getStartDate());
             bookingDTO.setEstimatedEndDate(book.getBooking().getEstimatedEndDate());
             bookingDTO.setRealEndDate(book.getBooking().getRealEndDate());
+            if(book.getBooking().getBookingUser()!=null){
+                UserDTO userDTO = new UserDTO();
+                userDTO.setId(book.getBooking().getBookingUser().getId());
+                userDTO.setFirstName(book.getBooking().getBookingUser().getFirstName());
+                userDTO.setLastName(book.getBooking().getBookingUser().getLastName());
+                bookingDTO.setBookingUser(userDTO);
+            }
             bookDTO.setAvailableBooking(bookingDTO);
         }
 

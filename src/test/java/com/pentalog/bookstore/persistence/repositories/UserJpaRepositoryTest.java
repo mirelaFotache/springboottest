@@ -28,9 +28,9 @@ public class UserJpaRepositoryTest {
     public void testFindByUserNameUserNotFound() {
         User user = UserSupplier.supplyUserWithUserNameAndId();
         userRepo.save(user);
-        User persistedUser = userRepo.findByUserName("");
+        User persistedUser = userRepo.findByUserName("abcd");
 
-        Assert.assertNotNull(persistedUser);
+        Assert.assertNull(persistedUser);
     }
 
     @Test

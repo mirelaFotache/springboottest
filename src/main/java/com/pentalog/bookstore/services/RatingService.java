@@ -55,6 +55,16 @@ public class RatingService {
     }
 
     /**
+     * Find ratings per user and book
+     * @param userId userId
+     * @param bookId bookId
+     * @return ratings
+     */
+    public Collection<RatingDTO> findRatingsPerUserAndBook(Integer userId, Integer bookId) {
+        return ratingJpaRepository.findRatingsPerUserAndBook(userId, bookId).stream().map(ratingMapper::toDto).collect(Collectors.toList());
+    }
+
+    /**
      * Find all ratings
      *
      * @return all ratings

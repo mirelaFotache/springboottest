@@ -28,7 +28,7 @@ public class RatingController {
      * @param userId user id
      * @return ratings for given user
      */
-    @RequestMapping(value = "/{user_id}/ratingsPerUser/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{user_id}/ratingsPerUser", method = RequestMethod.GET)
     public ResponseEntity<Collection<RatingDTO>> getRatingsPerUser(@PathVariable("user_id") Integer userId) {
         return new ResponseEntity<>(ratingService.findRatingsPerUser(userId), HttpStatus.OK);
     }
@@ -39,7 +39,7 @@ public class RatingController {
      * @param bookId book id
      * @return ratings for given book
      */
-    @RequestMapping(value = "/{book_id}/ratingsPerBook/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{book_id}/ratingsPerBook", method = RequestMethod.GET)
     public ResponseEntity<Collection<RatingDTO>> getRatingsPerBook(@PathVariable("book_id") Integer bookId) {
         return new ResponseEntity<>(ratingService.findRatingsPerBook(bookId), HttpStatus.OK);
     }
@@ -49,9 +49,14 @@ public class RatingController {
      *
      * @return all ratings
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Collection<RatingDTO>> getAllRatings() {
         return new ResponseEntity<>(ratingService.findAll(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/preferences", method = RequestMethod.GET)
+    public ResponseEntity<Collection<RatingDTO>> getRatingsPerUserAndBook(@RequestParam("user_id") Integer userId, @RequestParam("book_id") Integer bookId) {
+        return new ResponseEntity<>(ratingService.findRatingsPerUserAndBook(userId, bookId), HttpStatus.OK);
     }
 
     /**
@@ -60,7 +65,7 @@ public class RatingController {
      * @param ratingDTO ratingDTO
      * @return persisted ratingDTO
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<RatingDTO> insertRating(@RequestBody RatingDTO ratingDTO) {
         return new ResponseEntity<>(ratingService.insert(ratingDTO), HttpStatus.OK);
     }

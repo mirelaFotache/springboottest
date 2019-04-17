@@ -11,7 +11,7 @@ import com.pentalog.bookstore.persistence.entities.User;
 import com.pentalog.bookstore.persistence.repositories.BookingJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.BooksJpaRepository;
 import com.pentalog.bookstore.persistence.repositories.UserJpaRepository;
-import com.pentalog.bookstore.utils.YAMLConfig;
+import com.pentalog.bookstore.config.YAMLConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -69,6 +69,10 @@ public class BookingService {
      */
     public Collection<BookingDTO> findBookingsByBookId(Integer bookId) {
         return bookingJpaRepository.findBookingsByBookId(bookId).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
+    }
+
+    public Collection<BookingDTO> findActiveBookingsByUserId(Integer userId) {
+        return bookingJpaRepository.getActiveBookingsByUserId(userId).stream().map(bookingsMapper::toDTO).collect(Collectors.toList());
     }
 
     /**

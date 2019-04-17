@@ -10,11 +10,8 @@ public class Booking {
     @Id
     @GeneratedValue
     private int id;
-    @Column(name = "start_date")
     private Date startDate;
-    @Column(name="estimated_end_date")
     private Date estimatedEndDate;
-    @Column(name="real_end_date")
     private Date realEndDate;
     @Version
     private Integer version;
@@ -23,11 +20,11 @@ public class Booking {
      * Primary key constrain
      */
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "FK_BOOKING_BOOK"), referencedColumnName = "id")
     private Book bookingBook;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_BOOKING_USER"),  referencedColumnName = "id")
     private User bookingUser;
 
@@ -90,4 +87,5 @@ public class Booking {
     public void setBookingBook(Book bookingBook) {
         this.bookingBook = bookingBook;
     }
+
 }

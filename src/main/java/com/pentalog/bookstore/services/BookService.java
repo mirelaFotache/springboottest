@@ -39,6 +39,13 @@ public class BookService {
     private MessageSource messageSource;
 
     /**
+     * Find all books
+     * @return books
+     */
+    public Collection<BookDTO> findAll() {
+        return booksJpaRepository.findAll().stream().map(booksMapper::toDto).collect(Collectors.toList());
+    }
+    /**
      * Find books by title, author and availability
      *
      * @param title        title
@@ -77,7 +84,7 @@ public class BookService {
     }
 
     /**
-     * Find all books. For each book display the most recent booking if any was found
+     * Find all books. For each book display the most recent booking if any was found and the user who reserved the book
      *
      * @return books list
      */
@@ -88,12 +95,10 @@ public class BookService {
             TypedQuery<Booking> query = em.createQuery(hql, Booking.class);
             query.setParameter("id", book.getId());
             query.setMaxResults(1);
-            Booking booking = query.getSingleResult();
+            Booking booking = query.getResultList().stream().findFirst().orElse(null);
             book.setBooking(booking);
         }
-        final List<BookDTO> bookDTOS = allBooks.stream().map(booksMapper::toAvailableBookDto).collect(Collectors.toList());
-        return bookDTOS;
-
+        return allBooks.stream().map(booksMapper::toAvailableBookDto).collect(Collectors.toList());
     }
 
     /**

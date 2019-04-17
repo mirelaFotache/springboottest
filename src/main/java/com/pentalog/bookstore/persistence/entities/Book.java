@@ -17,11 +17,8 @@ public class Book {
     private String author;
     @Version
     private Integer version;
-    @Column(name = "book_number")
     private int bookNumber;
-    @Column(name = "book_image")
     private String bookImage;
-    @Column(name = "published_date")
     private Date publishedDate;
     @Enumerated(EnumType.STRING)
     private BookLocation bookLocation;

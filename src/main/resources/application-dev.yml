@@ -18,4 +18,10 @@ spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 #Display a report with all accepted and rejected beans
 #debug: true
 
-language.frenchLanguage: fr_FR
+language.selectedLanguage: fr_FR
+
+#Set duration of the login session
+server:
+  servlet:
+    session:
+      timeout: 2
